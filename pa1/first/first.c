@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 	ReadFile(argc, argv);
 
 	PrintList();
-	//FreeList();
+	FreeList();
 
 }
 

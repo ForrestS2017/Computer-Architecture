@@ -10,17 +10,15 @@ void Insert(int len);     // Returns node before one you want
 void FreeTable();
 void Operate(char op, int val);
 void Insert(int val);
-Node* Search(int val);
 void ReadFile(int argc, char** argv);  // Reads and inserts or deletes
-
-Node** table = NULL;
+Node **table = NULL;
 
 
 int main(int argc, char** argv)
 {
-	 if(argc < 2)
+	 if(argc != 2)
 	 {
-	  printf("error\n");
+	  printf("error");
 	  exit(0);
 	 }
 
@@ -47,7 +45,7 @@ void ReadFile(int argc, char** argv)
         exit(0);
     }
 
-    r = fscanf(fp, "%c\n", &op);     				// Get operation
+    r = fscanf(fp, "%c\t", &op);     				// Get operation
     if(r != 1){printf("0\n"); exit(0);}  			// Error throw
 
     table = (Node**) malloc(10000 * sizeof(Node*));
@@ -60,6 +58,7 @@ void ReadFile(int argc, char** argv)
     	r = fscanf(fp, "%c\t", &op);
 
     }
+    fclose(fp);
 
 }
 
@@ -80,10 +79,10 @@ void Operate(char op, int val)
 
 void Insert(int val)
 {
-	printf("Insert: %d\n", val);
+	//printf("\nInsert: %d", val);
 	int index;
 	index = val % 10000;
-	printf("\tIndex: %d\n", index);
+	//printf("Index: %d\n", index);
 
 	Node * find = table[index];
 	Node * prev = NULL;
@@ -93,9 +92,10 @@ void Insert(int val)
 	{
 		Node* insert = malloc(sizeof(Node*));
 		insert->next = NULL;
+		insert->data = val;
 		table[index] = insert;
-		printf("\tinserted: C000\n");
-		printf("\tdata: %d\tval: %d\n", table[index]->data, val);
+		printf("inserted\n");
+		//printf("\tdata: %d\tval: %d\n", table[index]->data, val);
 
 	}
 	// Case 2: Collision, so traverse the linked list
@@ -107,36 +107,71 @@ void Insert(int val)
 			// Case A: Duplicate
 			if(find->data == val)
 			{
-				printf("duplicate");
+				printf("duplicate\n");
 				return;
 			}
-			//prev = find;
+			prev = find;
 			find = find->next;
 		}
-		printf("Not in list, inserting at end\n");
-
-		prev = insert;
+		insert->data = val;
+		prev->next = insert;
+		printf("inserted\n");
+		//printf("\tNot in list, inserting at end\n");
 
 	}
 
-
 }
 
-Node* Search(int val)
+void Search(int val)
 {
-	printf("Search: %d\n", val);
+	//printf("\nSearch: %d", val);
 
 	int index;
 	index = val % 10000;
 
-	return NULL;
+	// Case 1: key unsued
+	if(table[index] == NULL)
+	{
+		printf("absent\n");
+	}
+	// Case 2: Search list
+	else
+	{
+		Node * temp = table[index];
+		while(temp)
+		{
+			if(temp->data == val)
+			{
+				printf("present\n");
+				return;
+			}
+			temp = temp->next;
+		}
 
+	}
 }
 
 
 
 void FreeTable()
 {
+
+	int index;
+	Node* temp = NULL;
+	Node* prev;
+
+	for(index = 0; index <= 10000; index++)
+	{
+		if(table[index])
+		{
+			while(temp)
+			{
+				prev = temp;
+				temp = temp->next;
+				free(prev);
+			}
+		}
+	}
 
 	free(table);
 }
