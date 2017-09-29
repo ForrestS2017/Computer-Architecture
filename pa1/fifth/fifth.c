@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int readFileName(int argc, char** argv);
 int OpenFile(int argc, char** argv);
+void SquareCheck(const int* matrix);
 int VertCheck(int* matrix);
 int RowCheck(int* matrix);
 int DiagCheck(int* matrix);
@@ -22,6 +22,7 @@ int main(int argc, char** argv)
 
 	OpenFile(argc, argv);
 	GetInitialTotal(values);
+	SquareCheck(values);
 	VertCheck(values);
 	RowCheck(values);
 	DiagCheck(values);
@@ -40,10 +41,8 @@ int VertCheck(int* matrix)
 	temp = 0;
 		for(i = 0; i < matrixSize; i++, temp = 0){
 			for(j = i; j < matrixSize*matrixSize; j += matrixSize){
-				//printf("matrix[j] = %d\n", matrix[j]);
 				temp += matrix[j];
 			}
-			//printf("Temp: %d\n", temp);
 			if(temp != total)
 			{
 				printf("not-magic\n");
@@ -106,17 +105,6 @@ int DiagCheck(int* matrix)
 	return 1;
 }
 
-int readFileName(int argc, char** argv){
-
-    /* Goal is to read the file name from the commandline*/
-    char* filename;
-    filename = argv[1]; //if yes,
-
-    printf("filename entered is %s\n", filename);
-
-    return 0;
-}
-
 int OpenFile(int argc, char** argv){
    int i, length, num;
 
@@ -153,6 +141,26 @@ int OpenFile(int argc, char** argv){
     return 0;
 }
 
+void SquareCheck(const int* matrix)
+{
+	int *check = (int*) calloc((matrixSize*matrixSize),sizeof(int));
+	int i, temp;
+	for(i = 0, temp = 0; i < matrixSize*matrixSize; i++)
+	{
+		temp = matrix[i];
+		if(!check[temp-1]){
+		check[temp-1] = temp;
+		//printf("%d\n",check[temp-1]);
+		}
+		else
+		{
+			printf("not-magic");
+			exit(0);
+		}
+
+	}
+}
+
 int GetInitialTotal(int* matrix)
 {
 	int i;
@@ -162,32 +170,3 @@ int GetInitialTotal(int* matrix)
 	//printf("Initial Total: %d\n", total);
 	return total;
 }
-
-
-/*
- *
- * //char line[256];
- *
-/*while (fgets(line, sizeof(line), fp))
-    {
-	if(i == 0)
-    	{
-    		sscanf(line, "%d", &matrixSize);
-    		printf("Size: %d\n", matrixSize);
-    		//i++;
-    		int* temp[matrixSize][matrixSize];//(int*)malloc(sizeof(matrixSize*matrixSize));
-    		*values = (int*)malloc((matrixSize*matrixSize)*sizeof(int)));
-    	}
-    	printf("%s", line);
-    	for(j = 0; j < matrixSize; i++)
-    	{
-    		values[i] = 5;
-    	}
-    	printf("logged: %d", &values[i][0]);
-
-
-    	//    	        //int curr = line[i];  subtracting '0' converts the char to an int
-
-    }*/
-
-
