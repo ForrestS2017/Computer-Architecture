@@ -10,6 +10,7 @@ void Insert(int len);     // Returns node before one you want
 void FreeTable();
 void Operate(char op, int val);
 void Insert(int val);
+void Search(int val);
 void ReadFile(int argc, char** argv);  // Reads and inserts or deletes
 Node **table = NULL;
 
@@ -25,7 +26,7 @@ int main(int argc, char** argv)
 	 ReadFile(argc, argv);
 
 	 FreeTable();
-
+	 return 0;
 }
 
 void ReadFile(int argc, char** argv)

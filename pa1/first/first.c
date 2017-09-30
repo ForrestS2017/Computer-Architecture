@@ -14,7 +14,7 @@ void FreeList();
 void ReadFile(int argc, char** argv);		// Reads and inserts or deletes
 
 Node *head = NULL;
-
+int size;
 
 int main(int argc, char** argv)
 {
@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 	PrintList();
 	FreeList();
 
+	return 0;
 }
 
 
@@ -35,6 +36,8 @@ void ReadFile(int argc, char** argv)
 {
 	int r, val;
 	char op;
+
+	size = 0;
 
     FILE* fp = NULL;
     char* filename = NULL;
@@ -67,8 +70,8 @@ void ReadFile(int argc, char** argv)
 			break;
     	}
 
-    	PrintList();
-    	printf("\n");
+    	//PrintList();
+    	//printf("\n");
     	r = fscanf(fp, "%c\t", &op);		//scan now for next round of operations
     	fscanf(fp, "%d\n", &val);
     }
@@ -77,7 +80,7 @@ void ReadFile(int argc, char** argv)
 
 void Insert(int input)
 {
-	printf("INSERTING: %d\t", input);
+	//printf("INSERTING: %d\t", input);
 
 	Node* insert = malloc(sizeof(Node*));
 	insert->data = input;
@@ -88,24 +91,27 @@ void Insert(int input)
 
 	if( head == NULL)
 	{
-		printf("CASE 1\n");
+		//printf("CASE 1\n");
 		head = insert;
 		head->next = NULL;
+		size++;
 	}
 	// Case 2: Insert @ beginning
 	else if (head->data > input)
 	{
-		printf("CASE 2\n");
+		//printf("CASE 2\n");
 		insert->next = head;
 		head = insert;
+		size++;
 	}
 	// Case 3: Traverse
 	else
 	{
-		printf("CASE 3\n");
+		//printf("CASE 3\n");
 		trailing = Find(input);
 		insert->next = trailing->next;
 		trailing->next = insert;
+		size++;
 
 	}
 
@@ -115,7 +121,7 @@ void Insert(int input)
 
 void Delete(int input)
 {
-	printf("DELETING: %d\t", input);
+	//printf("DELETING: %d\t", input);
 
 	Node* trailing;
 
@@ -123,22 +129,24 @@ void Delete(int input)
 
 	if( head == NULL)
 	{
-		printf("CASE 1\n");
+		//printf("CASE 1\n");
 	}
 	// Case 3: Delete head
 	else if (head->data == input)
 	{
-		printf("CASE 3\n");
+		//printf("CASE 3\n");
 		head = head->next;
+		size--;
 	}
 	// Case 4: Traverse
 	else
 	{
-		printf("CASE 4\n");
+		//printf("CASE 4\n");
 		trailing = Find(input);
 		if(trailing == NULL) return;
 		//newNext = trailing->next->next;
 		trailing->next = trailing->next->next;
+		size--;
 	}
 
 }
@@ -147,14 +155,14 @@ void PrintList()
 {
 
 	Node* temp = head;
-	printf("LIST: ");
+	printf("%d\n", size);
 
 	while(temp != NULL)
 	{
-		printf("%d ", temp->data);
+		printf("%d\t", temp->data);
 		temp = temp->next;
 	}
-	printf("\n");
+	//printf("\n");
 
 }
 

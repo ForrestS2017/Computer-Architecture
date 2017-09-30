@@ -167,6 +167,5 @@ int GetInitialTotal(int* matrix)
 	for(i = 0; i < matrixSize; i++){
 		total += matrix[i];
 	}
-	//printf("Initial Total: %d\n", total);
 	return total;
 }

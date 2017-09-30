@@ -8,11 +8,11 @@ typedef struct Node{
 } Node;
 
 void Insert(int len);     // Returns node before one you want
-void FreeTable();
+void FreeTree(Node* temp);
 void Operate(char op, int val);
 void Insert(int val);
 Node* Search(int val);
-Node* Delete(Node* node, int val);
+Node* Delete(Node* node, int val, int level);
 void ReadFile(int argc, char** argv);  // Reads and inserts or deletes
 Node * MakeNode(int val);
 Node *root = NULL;
@@ -29,8 +29,8 @@ int main(int argc, char** argv)
 
 	 ReadFile(argc, argv);
 
-	 FreeTable();
-
+	 FreeTree(root);
+	 return 0;
 }
 
 void ReadFile(int argc, char** argv)
@@ -76,7 +76,8 @@ void Operate(char op, int val)
 		Search(val);
 		return;
 	case 'd':
-		Delete(root, val);
+		root = Delete(root, val, 1);
+		//if(root) printf("success\n");
 		return;
 	}
 
@@ -184,9 +185,9 @@ Node* Search(int val)
 	return NULL;
 }
 
-Node* Delete(Node* target, int val)
+Node* Delete(Node* target, int val, int level)
 {
-	printf("Delete: %d\n", val);
+	//printf("Delete: %d\n", val);
 
 	// Case 1: empty tree
 	if(!target)
@@ -198,26 +199,46 @@ Node* Delete(Node* target, int val)
 	//If the targeted value is smaller or larger than the current value
 	if( target->data < val)
 	{
-		target->right = Delete(target->right, val);
+		Node * temp = Delete(target->right, val, level++);
+		target->right = temp;
+		if(level == 1)
+			{
+				if(temp)
+				{
+					return temp;
+				}
+				else printf("fail\n");
+			}
 	}
 	else if( target->data > val)
 	{
-		target->left = Delete(target->left, val);
+		Node * temp = Delete(target->left, val, level++);
+		target->left = temp;
+		if(level == 1)
+			{
+				if(temp)
+				{
+					return temp;
+				}
+				else printf("fail\n");
+			}
 	}
 	// Otherwise, if we found it
 	else
 	{
 		//	ONE child
-		if(target->right == NULL)
+		if(!target->right)
 		{
 			Node * temp = target->right;
 			free(target);
+			if(!temp) printf("success\n");
 			return temp;
 		}
-		else if(target->left == NULL)
+		else if(!target->left)
 		{
 			Node * temp = target->left;
 			free(target);
+			if(!temp) printf("success\n");
 			return temp;
 		}
 
@@ -227,9 +248,8 @@ Node* Delete(Node* target, int val)
 		//Swap the values
 		target->data = temp->data;
 		// Delete old inorder successor
-		target->right = Delete(target->right, temp->data);
+		target->right = Delete(target->right, temp->data, level++);
 	}
-
 	return target;
 }
 
@@ -243,53 +263,10 @@ Node * MakeNode(int val)
 	return newNode;
 }
 
-void FreeTable()
+void FreeTree(Node* temp)
 {
-
+	if(temp == NULL) return;
+	FreeTree(temp->left);
+	FreeTree(temp->right);
+	free(temp);
 }
-
-
-/*
-Node* Delete(Node* target, int val)
-{
-	printf("Delete: %d\n", val);
-
-	// Case 1: empty tree
-	if(!target)
-	{
-		printf("fail\n");
-		return NULL;
-	}
-
-	target = Search(val);
-	// Case 2: there's only one side
-	if(target->left == NULL)
-	{
-		Node * temp = target;
-		target = target->right;
-		if(temp == target) root = target;
-		free(temp);
-		return NULL;
-	}
-	else if(target->right == NULL)
-	{
-		Node * temp = target;
-		target = target->left;
-		if(temp == target) root = target;
-		free(target);
-		return NULL;
-	}
-
-	Node * temp = target->right;
-	while(temp->left != NULL)
-	{
-		temp = temp->left;
-	}
-
-	target->data = temp->data;
-
-	target->right = Delete(target->right, temp->data);
-
-
-	return root;
-}*/

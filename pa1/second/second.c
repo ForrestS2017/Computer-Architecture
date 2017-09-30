@@ -20,12 +20,12 @@ int main(int argc, char** argv)
 	 ReadFile(argc, argv);
 
 	 FreeArr();
-
+	 return 0;
 }
 
 void ReadFile(int argc, char** argv)
 {
- int r, len, cnt, temp;
+ int r, len, cnt;
 
     FILE* fp = NULL;
     char* filename = NULL;
@@ -89,8 +89,7 @@ void PrintList(int size)
 	 {
 	  printf("%d\t", arr[i]);
 	 }
-	 printf("%d\0", arr[i]);
-	 printf("\n");
+	 printf("%d", arr[i]);
 
 }
 

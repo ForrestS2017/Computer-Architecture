@@ -8,7 +8,7 @@ typedef struct Node{
 } Node;
 
 void Insert(int len);     // Returns node before one you want
-void FreeTable();
+void FreeTree(Node* temp);
 void Operate(char op, int val);
 void Insert(int val);
 void Search(int val);
@@ -28,7 +28,8 @@ int main(int argc, char** argv)
 
 	 ReadFile(argc, argv);
 
-	 FreeTable();
+	 FreeTree(root);
+	 return 0;
 
 }
 
@@ -188,7 +189,10 @@ Node * MakeNode(int val)
 	return newNode;
 }
 
-void FreeTable()
+void FreeTree(Node* temp)
 {
-
+	if(temp == NULL) return;
+	FreeTree(temp->left);
+	FreeTree(temp->right);
+	free(temp);
 }

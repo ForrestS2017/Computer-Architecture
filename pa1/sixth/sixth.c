@@ -5,24 +5,25 @@
 
 char* Compress(char* myString);
 void check(char current);
-char* compressed;
+
 
 int main(int argc, char** argv)
 {
-
+	char* compressed;
 	if(argc != 2){			//count arguments
 		printf("error\n");
 		exit(0);
 	}
 
-	printf("%s\n", argv[1]);
-	printf("%s", Compress(argv[1]));
+	compressed = Compress(argv[1]);
+	printf("%s",compressed);
 	free(compressed);
 	return 0;
 }
 
 char* Compress(char* myString)
 {
+	char* compressed;
 	int i,j, len;
 	compressed = (char*) malloc(2*sizeof(myString));	// Allocate space for compressed string
 
@@ -35,7 +36,9 @@ char* Compress(char* myString)
 			compressed[j] = myString[i];				// Add current character to result string
 			j++;
 			int dig;
-			dig = floor (log10 (abs (amount))) + 1;
+			int atemp; atemp = amount;
+			//dig = floor( log10( abs(amount) ) ) + 1;
+			while(atemp>9){ dig++; atemp/=10; }
 			char * str = (char*) malloc(dig*sizeof(char));
 			sprintf(str, "%d", amount);
 			while(str[len])
@@ -56,7 +59,7 @@ char* Compress(char* myString)
 
 void check(char current)
 {
-	if(current < 58 || current > 127)					// Throw error if character is invalid
+	if(current < 58 && current > 47)					// Throw error if character is invalid
 	{
 		printf("error");
 		exit(0);

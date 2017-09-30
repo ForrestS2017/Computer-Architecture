@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 	MultiplyMatrix();
 	PrintMatrix();
     FreeMemory();
+    return 0;
 }
 
 void FillMatrix(int argc, char** argv)
@@ -143,10 +144,6 @@ void PrintMatrix()
 	           if(j != matrixSize - 1){
        	        	printf("\t");
        	        }
-	        }
-	        if(i == matrixSize && j == matrixSize){
-	        	printf("\0");
-	        	return;
 	        }
 	        printf("\n");
 	    }
