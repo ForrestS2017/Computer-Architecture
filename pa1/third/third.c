@@ -50,6 +50,10 @@ void ReadFile(int argc, char** argv)
     if(r != 1){printf("0\n"); exit(0);}  			// Error throw
 
     table = (Node**) malloc(10000 * sizeof(Node*));
+    for(r = 0; r < 10000; r++)
+    {
+    	table[r] = NULL;
+    }
 
     while(r != EOF)
     {
@@ -82,7 +86,7 @@ void Insert(int val)
 {
 	//printf("\nInsert: %d", val);
 	int index;
-	index = val % 10000;
+	index = abs(val % 10000);
 	//printf("Index: %d\n", index);
 
 	Node * find = table[index];
@@ -91,7 +95,7 @@ void Insert(int val)
 	// Case 1: If the value has not been hashed
 	if(!find)
 	{
-		Node* insert = malloc(sizeof(Node*));
+		Node* insert = (Node*)malloc(sizeof(Node));
 		insert->next = NULL;
 		insert->data = val;
 		table[index] = insert;
@@ -102,7 +106,7 @@ void Insert(int val)
 	// Case 2: Collision, so traverse the linked list
 	else
 	{
-		Node* insert = malloc(sizeof(Node*));
+		Node* insert = (Node*)malloc(sizeof(Node));
 		while(find != NULL)
 		{
 			// Case A: Duplicate
@@ -128,7 +132,7 @@ void Search(int val)
 	//printf("\nSearch: %d", val);
 
 	int index;
-	index = val % 10000;
+	index = abs(val % 10000);
 
 	// Case 1: key unsued
 	if(table[index] == NULL)
@@ -150,6 +154,7 @@ void Search(int val)
 		}
 
 	}
+	printf("absent\n");
 }
 
 

@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 {
 	if(argc < 2)
 	{
-		printf("error\n");
+		//printf("error\n");
 		exit(0);
 	}
 	ReadFile(argc, argv);
@@ -47,7 +47,7 @@ void ReadFile(int argc, char** argv)
     fp = fopen(filename, "r");
     if(fp == NULL)
     {
-        printf("error: File does not exist\n");
+        //printf("error: File does not exist\n");
         exit(0);
     }
 
@@ -82,7 +82,7 @@ void Insert(int input)
 {
 	//printf("INSERTING: %d\t", input);
 
-	Node* insert = malloc(sizeof(Node*));
+	Node* insert = (Node*)malloc(sizeof(Node));
 	insert->data = input;
 	insert->next = NULL;
 	Node* trailing;
@@ -104,11 +104,18 @@ void Insert(int input)
 		head = insert;
 		size++;
 	}
-	// Case 3: Traverse
+	// Case 4: Traverse
 	else
 	{
+		// Case 4A: Head is input don't add
 		//printf("CASE 3\n");
+		if(head->data == input)
+		{
+			return;
+		}
 		trailing = Find(input);
+		// Case 4B: If input exists don't add
+		if(trailing->next) if(trailing->next->data == input) return;
 		insert->next = trailing->next;
 		trailing->next = insert;
 		size++;
@@ -134,19 +141,26 @@ void Delete(int input)
 	// Case 3: Delete head
 	else if (head->data == input)
 	{
-		//printf("CASE 3\n");
+		//printf("CASE 2\n");
 		head = head->next;
 		size--;
 	}
 	// Case 4: Traverse
 	else
 	{
-		//printf("CASE 4\n");
+		if(size == 1) return;
+		//printf("CASE 3\n");
 		trailing = Find(input);
 		if(trailing == NULL) return;
 		//newNext = trailing->next->next;
+		if(trailing->next)
+		{
+		//printf("DATA: %d", trailing->next->data);
 		trailing->next = trailing->next->next;
 		size--;
+		return;
+		}
+
 	}
 
 }
@@ -162,7 +176,7 @@ void PrintList()
 		printf("%d\t", temp->data);
 		temp = temp->next;
 	}
-	//printf("\n");
+	printf("\n");
 
 }
 
@@ -189,12 +203,15 @@ Node* Find(int input)
 
 	while(target)
 	{
-		if(target->data >= input) return trailing;
+		if(target->data >= input)
+			{
+			return trailing;
+			}
 		trailing = target;
 		target = target->next;
 	}
 
-
+	//printf("Trailing: %d\n", trailing->data);
 	return trailing;
 }
 

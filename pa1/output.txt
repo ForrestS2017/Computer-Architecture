@@ -1,0 +1,364 @@
+[fcs34@patterns autograder]$ python auto_grader.py
+Grading the content of pa1.
+first  found!
+Grading first
+Observed: error: File does not exist
+Expected: 2
+Observed: 
+Expected: 5	12
+The output is not correct for input file test1.txt.
+Observed: error: File does not exist
+Expected: 10
+Observed: 
+Expected: 1	2	3	4	5	6	7	8	9	10
+The output is not correct for input file test10.txt.
+Observed: error: File does not exist
+Expected: 1
+Observed: 
+Expected: 5
+The output is not correct for input file test2.txt.
+Observed: error: File does not exist
+Expected: 1
+Observed: 
+Expected: 20
+The output is not correct for input file test3.txt.
+Observed: error: File does not exist
+Expected: 6
+Observed: 
+Expected: 1	3	4	10	100	110
+The output is not correct for input file test5.txt.
+Observed: error: File does not exist
+Expected: 3
+Observed: 
+Expected: -2	1	4
+The output is not correct for input file test6.txt.
+Observed: error: File does not exist
+Expected: 0
+The output is not correct for input file test7.txt.
+Observed: error: File does not exist
+Expected: 6
+Observed: 
+Expected: 20	40	50	60	70	100
+The output is not correct for input file test9.txt.
+Score is  0
+
+
+second  found!
+Grading second
+Observed: error: File does not exist
+Expected: 9	12	15	16	48	65	72	82
+The output is not correct for input file test1.txt.
+Observed: error: File does not exist
+Expected: -530	-358	-275	-9	275	305	502
+The output is not correct for input file test2.txt.
+Observed: error: File does not exist
+Expected: -61	45	56	71	93	112	112	122	137
+The output is not correct for input file test3.txt.
+Observed: error: File does not exist
+Expected: 4	4	4	4	4	4	5	5	5	59	9	9	9	9	9
+The output is not correct for input file test4.txt.
+Score is  0
+
+
+third  found!
+Grading third
+Observed: error
+Expected: inserted
+Output missing:  inserted
+
+Output missing:  inserted
+
+Output missing:  inserted
+
+Output missing:  present
+
+Output missing:  present
+
+Output missing:  present
+
+Output missing:  present
+
+The output is not correct for input file test_public1.txt.
+Observed: error
+Expected: inserted
+Output missing:  inserted
+
+Output missing:  inserted
+
+Output missing:  inserted
+
+Output missing:  duplicate
+
+Output missing:  present
+
+Output missing:  present
+
+Output missing:  present
+
+Output missing:  present
+
+The output is not correct for input file test_public2.txt.
+Observed: error
+Expected: inserted
+Output missing:  present
+
+Output missing:  inserted
+
+Output missing:  present
+
+Output missing:  duplicate
+
+Output missing:  present
+
+Output missing:  inserted
+
+Output missing:  inserted
+
+Output missing:  absent
+
+Output missing:  present
+
+Output missing:  present
+
+The output is not correct for input file test_public4.txt.
+Observed: error
+Expected: inserted
+Output missing:  inserted
+
+Output missing:  inserted
+
+Output missing:  inserted
+
+Output missing:  present
+
+Output missing:  absent
+
+Output missing:  present
+
+Output missing:  absent
+
+Output missing:  absent
+
+The output is not correct for input file test_public5.txt.
+Score is  0
+
+
+fourth  found!
+Grading fourth
+Observed: error: File does not exist
+Expected: 468	576	684
+Observed: 
+Expected: 1062	1305	1548
+Output missing:  1656	2034	2412
+
+The output is not correct for input file test1.txt.
+Observed: error: File does not exist
+Expected: 512	512
+Observed: 
+Expected: 512	512
+The output is not correct for input file test2.txt.
+Observed: error: File does not exist
+Expected: 61088	61024	60960	60896
+Observed: 
+Expected: 29088	29024	28960	28896
+Output missing:  18912	18976	19040	19104
+
+Output missing:  50912	50976	51040	51104
+
+The output is not correct for input file test3.txt.
+Observed: error: File does not exist
+Expected: 95551488	95551488
+Observed: 
+Expected: 95551488	95551488
+The output is not correct for input file test4.txt.
+Observed: error: File does not exist
+Expected: 1728
+The output is not correct for input file test5.txt.
+Score is  0
+
+
+fifth  found!
+Grading fifth
+Observed: error: File does not exist
+Expected: not-magic
+The output is not correct for input file test1.txt.
+Observed: error: File does not exist
+Expected: not-magic
+The output is not correct for input file test2.txt.
+Observed: error: File does not exist
+Expected: magic
+The output is not correct for input file test3.txt.
+Observed: error: File does not exist
+Expected: not-magic
+The output is not correct for input file test4.txt.
+Observed: error: File does not exist
+Expected: not-magic
+The output is not correct for input file test5.txt.
+Score is  0
+
+
+sixth  found!
+Grading sixth
+
+An exception occured trying to execute ./sixth aaaaaaaabbbbbbbcccccccdddddddddeeeeeee
+Score is  0
+An exception occured trying to execute ./sixth abcdef
+Score is  0
+An exception occured trying to execute ./sixth aabccccccggeeecccccd
+Score is  0
+An exception occured trying to execute ./sixth 11111111aaaa
+Score is  0
+Score is  0
+
+
+seventh  found!
+Grading seventh
+
+Score is  2.5
+
+
+ninth  found!
+Grading ninth
+Observed: error
+Expected: inserted 1
+Output missing:  inserted 2
+
+Output missing:  inserted 3
+
+Output missing:  inserted 4
+
+Output missing:  inserted 5
+
+Output missing:  inserted 6
+
+Output missing:  inserted 7
+
+Output missing:  inserted 6
+
+Output missing:  inserted 7
+
+Output missing:  inserted 8
+
+Output missing:  success
+
+Output missing:  present 3
+
+Output missing:  present 5
+
+Output missing:  present 4
+
+Output missing:  present 6
+
+Output missing:  success
+
+Output missing:  success
+
+Output missing:  fail
+
+Output missing:  success
+
+Output missing:  present 1
+
+Output missing:  present 2
+
+The output is not correct for input file test1.txt.
+Observed: error
+Expected: inserted 1
+Output missing:  inserted 2
+
+Output missing:  success
+
+Output missing:  success
+
+Output missing:  absent
+
+Output missing:  absent
+
+Output missing:  inserted 1
+
+The output is not correct for input file test2.txt.
+Observed: error
+Expected: inserted 1
+Output missing:  inserted 2
+
+Output missing:  inserted 2
+
+Output missing:  inserted 3
+
+Output missing:  inserted 4
+
+Output missing:  inserted 5
+
+Output missing:  inserted 6
+
+Output missing:  success
+
+Output missing:  present 5
+
+Output missing:  present 1
+
+Output missing:  fail
+
+The output is not correct for input file test3.txt.
+Observed: error
+Expected: inserted 1
+Output missing:  inserted 2
+
+Output missing:  inserted 3
+
+Output missing:  inserted 3
+
+Output missing:  inserted 2
+
+Output missing:  inserted 3
+
+Output missing:  inserted 3
+
+Output missing:  present 2
+
+Output missing:  inserted 4
+
+Output missing:  inserted 5
+
+Output missing:  inserted 5
+
+Output missing:  inserted 4
+
+Output missing:  inserted 5
+
+Output missing:  inserted 6
+
+Output missing:  inserted 4
+
+Output missing:  fail
+
+Output missing:  success
+
+Output missing:  present 1
+
+Output missing:  success
+
+Output missing:  success
+
+Output missing:  present 2
+
+Output missing:  absent
+
+Output missing:  inserted 4
+
+The output is not correct for input file test4.txt.
+Score is  0
+
+
+You scored 
+0  in  second
+0  in  fourth
+0  in  third
+0  in  sixth
+0  in  ninth
+2.5  in  seventh
+0  in  eighth
+0  in  fifth
+0  in  first
+Your TOTAL SCORE =  2.5 /50
+Your assignment will be graded for another 50 points with test cases not given to you

@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 
 	compressed = Compress(argv[1]);
 	printf("%s",compressed);
-	free(compressed);
+	//free(compressed);
 	return 0;
 }
 

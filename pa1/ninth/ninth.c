@@ -12,7 +12,7 @@ void FreeTree(Node* temp);
 void Operate(char op, int val);
 void Insert(int val);
 Node* Search(int val);
-Node* Delete(Node* node, int val, int level);
+Node* Delete(Node* node, int val);
 void ReadFile(int argc, char** argv);  // Reads and inserts or deletes
 Node * MakeNode(int val);
 Node *root = NULL;
@@ -76,7 +76,7 @@ void Operate(char op, int val)
 		Search(val);
 		return;
 	case 'd':
-		root = Delete(root, val, 1);
+		root = Delete(root, val);
 		//if(root) printf("success\n");
 		return;
 	}
@@ -152,13 +152,14 @@ Node* Search(int val)
 		// Case 1: Empty tree
 	if(root == NULL)
 	{
-		printf("absent %d\n", val);
+		printf("absent\n");
 		return NULL;
 	}
 	else
 	{
 		Node * temp = root;
-			while(temp != NULL){
+		while(temp != NULL)
+		{
 			// Val is smaller, go left
 			if(temp->data > val)
 			{
@@ -185,43 +186,26 @@ Node* Search(int val)
 	return NULL;
 }
 
-Node* Delete(Node* target, int val, int level)
+Node* Delete(Node* target, int val)
 {
-	//printf("Delete: %d\n", val);
-
 	// Case 1: empty tree
 	if(!target)
 	{
 		printf("fail\n");
 		return NULL;
 	}
-
 	//If the targeted value is smaller or larger than the current value
-	if( target->data < val)
+	if(target->data < val)
 	{
-		Node * temp = Delete(target->right, val, level++);
+
+		Node * temp = Delete(target->right, val);
 		target->right = temp;
-		if(level == 1)
-			{
-				if(temp)
-				{
-					return temp;
-				}
-				else printf("fail\n");
-			}
 	}
 	else if( target->data > val)
 	{
-		Node * temp = Delete(target->left, val, level++);
+		Node * temp = Delete(target->left, val);
+
 		target->left = temp;
-		if(level == 1)
-			{
-				if(temp)
-				{
-					return temp;
-				}
-				else printf("fail\n");
-			}
 	}
 	// Otherwise, if we found it
 	else
@@ -229,26 +213,31 @@ Node* Delete(Node* target, int val, int level)
 		//	ONE child
 		if(!target->right)
 		{
-			Node * temp = target->right;
+			Node * temp = target->left;
 			free(target);
-			if(!temp) printf("success\n");
+			printf("success\n");
 			return temp;
 		}
 		else if(!target->left)
 		{
-			Node * temp = target->left;
+			Node * temp = target->right;
 			free(target);
-			if(!temp) printf("success\n");
+			printf("success\n");
 			return temp;
 		}
 
 		// TWO child, find inorder successor
 		Node * temp = target->right;
-		while(temp->left != NULL) temp = temp->left;
+
+		// Now loop until you find the inorder successor
+		while(temp->left != NULL)
+			{
+			temp = temp->left;
+			}
 		//Swap the values
 		target->data = temp->data;
 		// Delete old inorder successor
-		target->right = Delete(target->right, temp->data, level++);
+		target->right = Delete(target->right, temp->data);
 	}
 	return target;
 }

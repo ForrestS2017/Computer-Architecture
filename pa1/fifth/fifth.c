@@ -148,6 +148,11 @@ void SquareCheck(const int* matrix)
 	for(i = 0, temp = 0; i < matrixSize*matrixSize; i++)
 	{
 		temp = matrix[i];
+		if(temp -1 > matrixSize*matrixSize)
+		{
+			printf("not-magic\n");
+			exit(0);
+		}
 		if(!check[temp-1]){
 		check[temp-1] = temp;
 		//printf("%d\n",check[temp-1]);
