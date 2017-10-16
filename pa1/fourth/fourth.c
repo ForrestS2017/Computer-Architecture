@@ -94,7 +94,8 @@ void MultiplyMatrix()
 		for(place = 0; place < matrixSize; place++)
 			{
 		        for(sec = 0; sec < matrixSize; sec++){
-		            resultMatrix[place][sec] = 1;
+		            if(place == sec) resultMatrix[place][sec] = 1;
+		            else resultMatrix[place][sec] = 0;
 		        }
 		    }
 		return;
