@@ -11,59 +11,98 @@ int main(int argc, char** argv)
 	}
 	FillMatrix(argc, argv);
 	//wMatrix = GetWeights();
-	PrintMatrix(trainMatrix);
-	Printy();
-	Printw();
-	Printm();
-	GaussEliminate(trainMatrix);
+	//PrintMatrix(trainMatrix);
+	//Printy();
+	//Printw();
+	//Printm();
+	InvertMatrix(trainMatrix);
 	return 0;
 }
 
 arr* InvertMatrix(arr* matrix)
 {
-	arr* idMatrix;
-	idMatrix = create_arr(nSize, kSize+1, 0);	// Create ID matrix
-	int i, j, rows,cols;
-	rows = idMatrix->rows;
-	cols = idMatrix->cols;
+	arr* inMatrix = GaussEliminate(matrix);
 
-	rows = rows < cols ? rows : cols;
-
-	for(i = 0; i < rows; i++)
-	{
-		idMatrix->matrix[i][i] = 1.0;
-	}
-	printf("NORMAL\n");
-	PrintMatrix(matrix);
-	// Create temp train matrix
-	arr* tempMatrix;
-	tempMatrix= create_arr(matrix->rows, matrix->cols-1, 1);
-	for(i = 0; i < tempMatrix->rows; i++)
-	{
-		for(j = 0; j < tempMatrix->cols; j++)
-		{
-			tempMatrix->matrix[i][j] = matrix->matrix[i][j];
-		}
-	}
-	printf("Inverted\n");
-	PrintMatrix(tempMatrix);
-	return NULL;
+	// Begin
+	return inMatrix;
 }
 
 arr* TransposeMatrix(arr* matrix)
 {
+	int i, j, mRows, mCols;
+	mRows = matrix->rows;
+	mCols = matrix->cols;
+	arr* tnMatrix = create_arr(mCols, mRows, 0);
 
-	return NULL;
+	for(i = 0; i < mRows; i++)
+	{
+		for(j = 0; j < mCols; j++)
+		{
+			tnMatrix->matrix[j][i] = matrix->matrix[i][j];
+		}
+	}
+
+	return tnMatrix;
 }
 
 arr* GaussEliminate(arr* matrix)
 {
 
 	//PrintMatrix(idMatrix);
-	arr* inMatrix, tnMatrix;
-	inMatrix = InvertMatrix(matrix);
 
-	return NULL;
+	arr* idMatrix;	// Your Identity Matrix
+	arr* tempMatrix;	// Temporary duplicate matrix of train data to prevent overwitng original
+	int i, j, rows,cols, proper;
+	rows = matrix->rows;
+	cols = matrix->cols;
+	idMatrix = create_arr(rows, cols, 0);	// Create ID matrix
+	tempMatrix= create_arr(rows, cols, 0);
+
+	// Fill temp duplicated train matrix
+	for(i = 0; i < rows; i++)
+	{
+		for(j = 0; j < cols; j++)
+		{
+			tempMatrix->matrix[i][j] = matrix->matrix[i][j];
+		}
+	}
+
+	rows = rows < cols ? rows : cols;	// Get smaller dimension to enter 1's
+	for(i = 0; i < rows; i++) idMatrix->matrix[i][i] = 1.0;
+
+	// BEGIN GAUSS ELIMINATION
+
+	// First step of getting diagonal ones. Second step later to isolate 1 column
+	for(i = 1; i < rows; i++)
+	{
+		//proper =  Check_1(tempMatrix, i);
+		if(Check_1( tempMatrix, i))
+		{
+			//so, if the line is improper, we do row operations
+			//Simply, create a for loop to iterate through the previous rows.
+			//Subtract row j, get coefficient and multiply whole row of both matricies
+			// repeat/iterate w/ next row up until i
+		}
+	}
+
+
+	return tempMatrix;
+}
+
+int Check_1(arr* matrix, row)
+{
+	//if(matrix->rows > matrix-> cols && row > matrix->cols) return 1;
+	int i;
+	for(i = 0; i < row; i++)
+	{
+		if(i < row && matrix->matrix[i][i])
+		{
+			return 0;
+		}
+	}
+	if(matrix->matrix[row][row] != 1) return 0;
+
+	return 1;
 }
 
 double* GetWeights()

@@ -51,6 +51,10 @@ void AssignMatrix();
 
 void PrintMatrix(arr* matrix);
 
+int Check_1(arr* matrix, row);
+
+arr* MultiplyMatrix(arr* matrixA, arr* matrixB);
+
 
 void Printy();
 void Printw();
