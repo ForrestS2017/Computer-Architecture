@@ -11,47 +11,57 @@ int main(int argc, char** argv)
 	}
 	FillMatrix(argc, argv);
 	//wMatrix = GetWeights();
-	//GaussEliminate(trainMatrix);
 	PrintMatrix(trainMatrix);
 	Printy();
 	Printw();
 	Printm();
+	GaussEliminate(trainMatrix);
 	return 0;
 }
 
-void InvertMatrix(double** matrix)
+arr* InvertMatrix(arr* matrix)
 {
-
-}
-
-double** TransposeMatrix(double** matrix)
-{
-
-	return NULL;
-}
-
-double** GaussEliminate(double** matrix)
-{
-	double** idMatrix;
-	idMatrix = (double**) malloc((nSize)*sizeof(double*));	// Allocate size
-	int rows, cols, i;
-	rows = sizeof(matrix)/sizeof(double**);
-	cols = sizeof(matrix[0])/sizeof(double*);
-
-	// Allocating space for the training matrix
-	for(i = 0; i <= rows; i++)
-	{
-		idMatrix[i] = (double*) malloc((cols)*sizeof(double));
-	}
+	arr* idMatrix;
+	idMatrix = create_arr(nSize, kSize+1, 0);	// Create ID matrix
+	int i, j, rows,cols;
+	rows = idMatrix->rows;
+	cols = idMatrix->cols;
 
 	rows = rows < cols ? rows : cols;
 
 	for(i = 0; i < rows; i++)
 	{
-		idMatrix[i][i] = 1.0;
+		idMatrix->matrix[i][i] = 1.0;
 	}
+	printf("NORMAL\n");
+	PrintMatrix(matrix);
+	// Create temp train matrix
+	arr* tempMatrix;
+	tempMatrix= create_arr(matrix->rows, matrix->cols-1, 1);
+	for(i = 0; i < tempMatrix->rows; i++)
+	{
+		for(j = 0; j < tempMatrix->cols; j++)
+		{
+			tempMatrix->matrix[i][j] = matrix->matrix[i][j];
+		}
+	}
+	printf("Inverted\n");
+	PrintMatrix(tempMatrix);
+	return NULL;
+}
 
-	PrintMatrix(idMatrix);
+arr* TransposeMatrix(arr* matrix)
+{
+
+	return NULL;
+}
+
+arr* GaussEliminate(arr* matrix)
+{
+
+	//PrintMatrix(idMatrix);
+	arr* inMatrix, tnMatrix;
+	inMatrix = InvertMatrix(matrix);
 
 	return NULL;
 }
@@ -77,32 +87,19 @@ double* GetWeights()
 	    free(resultMatrix);
 	   // free(tempMatrix);
 }
+*/
 
-
-void AssignMatrix()
+void PrintMatrix(arr* matrix)
 {
-	int i, j;
-	for(i = 0; i < matrixSize; i++)
-		{
-			for(j = 0; j < matrixSize; j++){
-				tempMatrix[i][j] = resultMatrix[i][j];
-			}
-		}
-}
- */
-void PrintMatrix(double** matrix)
-{
-	int i, j, rows, cols;
+	int i,j;
 	printf("Matrix\n");
-	rows = sizeof(matrix)/sizeof(double*);// / sizeof(matrix[0]);
-	cols = sizeof(matrix[0]);// / sizeof(matrix[0][0]);
-	printf("rows:%d, cols:%d\n", rows, cols);
+	printf("rows:%d, cols:%d\n", matrix->rows, matrix->cols);
 	//printf("%f\n", matrix[9][4]);
-	for(i = 0; i < 10; i++)
+	for(i = 0; i < matrix->rows; i++)
 	{
-		for(j = 0; j < 5; j++)
+		for(j = 0; j < matrix->cols; j++)
 		{
-			printf("%f", matrix[i][j]);
+			printf("%f", matrix->matrix[i][j]);
 			printf("\t");
 		}
 		printf("\n");
@@ -127,11 +124,11 @@ void Printm()
 {
 	int i, j;
 	printf("M-MATRIX:\n");
-	for(i = 0; i < mSize; i++)
+	for(i = 0; i < testMatrix->rows; i++)
 	{
-		for(j = 0; j < kSize; j++)
+		for(j = 0; j < testMatrix->cols; j++)
 		{
-			printf("%f", testMatrix[i][j]);
+			printf("%f", testMatrix->matrix[i][j]);
 			printf("\t");
 		}
 		printf("\n");
@@ -188,24 +185,11 @@ void FillMatrix(int argc, char** argv)
 	printf("mSize: %d\n", mSize);
 	if(s != 1){printf("error\n"); exit(0);}		// Error throw
 
-	trainMatrix = (double**) malloc((nSize)*sizeof(double*));	// Allocate size
-	testMatrix = (double**) malloc((mSize)*sizeof(double*));	// Allocate size
 	yMatrix = (double*) calloc((nSize),sizeof(double));
 	wMatrix = (double*) calloc((kSize+1),sizeof(double));
 
-	// Allocating space for the training matrix
-	for(i = 0; i <= nSize; i++)
-	{
-		trainMatrix[i] = (double*)calloc(kSize+1,sizeof(double));
-		trainMatrix[i][0] = 1;
-	}
-
-	// Allocate space for test matrix
-	for(i = 0; i < mSize; i++)
-	{
-		testMatrix[i] = (double*)calloc(kSize,sizeof(double));
-	}
-
+	trainMatrix = create_arr(nSize, kSize, 1);
+	testMatrix = create_arr(mSize, kSize, 0);
 
 	// Entering Train values
 
@@ -213,8 +197,7 @@ void FillMatrix(int argc, char** argv)
 	{
 		for(j = 1; j <= kSize; j++){
 			fscanf(fTrain, "%lf,", &temp);
-			//printf("temp: %f\n", temp);
-			trainMatrix[i][j] = temp;
+			trainMatrix->matrix[i][j] = temp;
 		}
 		fscanf(fTrain, "%lf,", &temp);
 		yMatrix[i]= temp;
@@ -226,8 +209,7 @@ void FillMatrix(int argc, char** argv)
 	{
 		for(j = 0; j < kSize; j++){
 			fscanf(fTest, "%lf,", &temp);
-			//printf("temp: %f\n", temp);
-			testMatrix[i][j] = temp;
+			testMatrix->matrix[i][j] = temp;
 		}
 	}
 	fclose(fTrain);

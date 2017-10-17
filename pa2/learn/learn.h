@@ -3,8 +3,8 @@
 
 double *wMatrix = NULL;
 double *yMatrix = NULL;
-double **trainMatrix = NULL;
-double **testMatrix = NULL;
+struct arr *trainMatrix = NULL;
+struct arr *testMatrix = NULL;
 int kSize, nSize, mSize;
 
 struct arr{
@@ -18,23 +18,16 @@ typedef struct arr arr;
 arr* create_arr(int rows, int cols, int train)
 {
 	arr *rMatrix = malloc(sizeof *rMatrix);
+	rMatrix->rows = rows;
+	if(train == 1) rMatrix->cols = cols+1;
+	if(train == 0) rMatrix->cols = cols;
+
 	rMatrix->matrix = (double**) malloc((rows)*sizeof(double*));
 	int i;
-	switch(train)
+	for(i = 0; i < rows; i++)
 	{
-	case 1:
-		for(i = 0; i <= rows; i++)
-		{
-			trainMatrix[i] = (double*)calloc(cols,sizeof(double));
-			trainMatrix[i][0] = 1;
-		}
-		break;
-	case 0:
-		for(i = 0; i < rows; i++)
-		{
-			trainMatrix[i] = (double*)calloc(cols,sizeof(double));
-		}
-		break;
+		rMatrix->matrix[i] = (double*)calloc(cols,sizeof(double));
+		if(train) rMatrix->matrix[i][0] = 1;
 	}
 	return rMatrix;
 }
@@ -44,11 +37,11 @@ arr* create_arr(int rows, int cols, int train)
 
 void FillMatrix(int argc, char** argv);
 
-void InvertMatrix(double** matrix);
+arr* InvertMatrix(arr* matrix);
 
-double** TransposeMatrix(double** matrix);
+arr* TransposeMatrix(arr* matrix);
 
-double** GaussEliminate(double** matrix);
+arr* GaussEliminate(arr* matrix);
 
 double* GetWeights();
 
@@ -56,7 +49,7 @@ void FreeMemory();
 
 void AssignMatrix();
 
-void PrintMatrix(double** matrix);
+void PrintMatrix(arr* matrix);
 
 
 void Printy();
