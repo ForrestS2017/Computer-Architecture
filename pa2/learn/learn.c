@@ -73,12 +73,19 @@ arr* GaussEliminate(arr* matrix)
 	// BEGIN GAUSS ELIMINATION
 
 	// First step of getting diagonal ones. Second step later to isolate 1 column
+	PrintMatrix(idMatrix);
 	for(i = 1; i < rows; i++)
 	{
 		//proper =  Check_1(tempMatrix, i);
-		if(Check_1( tempMatrix, i))
+		if(!Check_1( tempMatrix, i))
 		{
 			//so, if the line is improper, we do row operations
+			SubtractRows(tempMatrix, idMatrix, i);
+			/*
+			 * DONT DO ELIMINATION BY ROW, DO IT BY SUBTRACTION!!
+			 */
+
+			//PrintMatrix(idMatrix);
 			//Simply, create a for loop to iterate through the previous rows.
 			//Subtract row j, get coefficient and multiply whole row of both matricies
 			// repeat/iterate w/ next row up until i
@@ -89,7 +96,7 @@ arr* GaussEliminate(arr* matrix)
 	return tempMatrix;
 }
 
-int Check_1(arr* matrix, row)
+int Check_1(arr* matrix, int row)
 {
 	//if(matrix->rows > matrix-> cols && row > matrix->cols) return 1;
 	int i;
@@ -105,34 +112,24 @@ int Check_1(arr* matrix, row)
 	return 1;
 }
 
+void SubtractRows(arr* tempMatrix, arr* idMatrix, int row)
+{
+
+	// DONT DO ELIMINATION BY ROW, DO IT BY SUBTRACTION!!
+
+}
+
 double* GetWeights()
 {
 	//double** invMatrix;
 	return NULL;
 }
 
-
-
-/*void FreeMemory()
-{
-	int i;
-	for(i = 0; i < matrixSize; i++)
-	    {
-	        free(matrix[i]);
-	        free(resultMatrix[i]);
-	        //free(tempMatrix[i]);
-	    }
-	    free(matrix);
-	    free(resultMatrix);
-	   // free(tempMatrix);
-}
-*/
-
 void PrintMatrix(arr* matrix)
 {
 	int i,j;
 	printf("Matrix\n");
-	printf("rows:%d, cols:%d\n", matrix->rows, matrix->cols);
+	//printf("rows:%d, cols:%d\n", matrix->rows, matrix->cols);
 	//printf("%f\n", matrix[9][4]);
 	for(i = 0; i < matrix->rows; i++)
 	{

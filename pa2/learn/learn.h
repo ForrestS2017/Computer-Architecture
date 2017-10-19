@@ -51,9 +51,11 @@ void AssignMatrix();
 
 void PrintMatrix(arr* matrix);
 
-int Check_1(arr* matrix, row);
+int Check_1(arr* matrix, int row);
 
 arr* MultiplyMatrix(arr* matrixA, arr* matrixB);
+
+void SubtractRows(arr* tempMatrix, arr* idMatrix, int row);
 
 
 void Printy();
