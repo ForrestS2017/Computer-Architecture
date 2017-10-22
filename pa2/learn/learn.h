@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-double *wMatrix = NULL;
-double *yMatrix = NULL;
+struct arr *wMatrix = NULL;
+struct arr *yMatrix = NULL;
 struct arr *trainMatrix = NULL;
 struct arr *testMatrix = NULL;
-int kSize, nSize, mSize;
 
 struct arr{
     int rows;
@@ -43,19 +42,17 @@ arr* TransposeMatrix(arr* matrix);
 
 arr* GaussEliminate(arr* matrix);
 
-double* GetWeights();
+arr* GetWeights();
 
-void FreeMemory();
+void FreeMatrix(arr* matrix);
 
 void AssignMatrix();
 
 void PrintMatrix(arr* matrix);
 
-int Check_1(arr* matrix, int row);
-
 arr* MultiplyMatrix(arr* matrixA, arr* matrixB);
 
-void SubtractRows(arr* tempMatrix, arr* idMatrix, int row);
+arr* SubtractRows(arr* tempMatrix, arr* idMatrix);
 
 
 void Printy();
