@@ -4,29 +4,30 @@
 struct arr *wMatrix = NULL;
 struct arr *yMatrix = NULL;
 struct arr *trainMatrix = NULL;
-struct arr *testMatrix = NULL;
+int kSize;
 
 struct arr{
     int rows;
     int cols;
-    double **matrix ; // change the member!
+    double **matrix ; 
 };
 
 typedef struct arr arr;
 
 arr* create_arr(int rows, int cols, int train)
 {
-	arr *rMatrix = malloc(sizeof *rMatrix);
+	arr *rMatrix;
+	rMatrix = malloc(sizeof *rMatrix);
 	rMatrix->rows = rows;
-	if(train == 1) rMatrix->cols = cols+1;
+	if(train == 1) rMatrix->cols = cols+1;	// If we are using train data, we need a 1's column
 	if(train == 0) rMatrix->cols = cols;
 
-	rMatrix->matrix = (double**) malloc((rows)*sizeof(double*));
+	rMatrix->matrix = (double**) calloc((rows),sizeof(double*));
 	int i;
 	for(i = 0; i < rows; i++)
 	{
 		rMatrix->matrix[i] = (double*)calloc(cols,sizeof(double));
-		if(train) rMatrix->matrix[i][0] = 1;
+		if(train) rMatrix->matrix[i][0] = 1.0;
 	}
 	return rMatrix;
 }
@@ -36,13 +37,15 @@ arr* create_arr(int rows, int cols, int train)
 
 void FillMatrix(int argc, char** argv);
 
-arr* InvertMatrix(arr* matrix);
+arr* InvertMatrix(arr* matrix);		// Calls GaussEliminate()
 
 arr* TransposeMatrix(arr* matrix);
 
-arr* GaussEliminate(arr* matrix);
+arr* GaussEliminate(arr* matrix);	// Calls SubtractRows()
 
 arr* GetWeights();
+
+void GetPrintPrices(int argc, char** argv);
 
 void FreeMatrix(arr* matrix);
 
@@ -52,11 +55,11 @@ void PrintMatrix(arr* matrix);
 
 arr* MultiplyMatrix(arr* matrixA, arr* matrixB);
 
-arr* SubtractRows(arr* tempMatrix, arr* idMatrix);
+arr* SubtractRows(arr* tempMatrix, arr* idMatrix);	// Called by GaussEliminate()
 
 
 void Printy();
 void Printw();
-void Printm();
 
 #endif
+
