@@ -23,12 +23,10 @@ typedef struct variable
 {
 	char* name;
 	int value;					// 0 or 1, or -1 unset
-	//struct block * owner;		// What block this minterm originates from
 	struct variable * next;
 	int type;					// 0 = IN, 1 = OUT, 2 = TEMP
 	int order;
 	int graycode;
-	//struct variable* prev;
 
 } Variable;
 
@@ -316,6 +314,24 @@ void PrintGreyCode()
 	}
 }
 
+void PrintGreyCodeLine(int line)
+{
+	int  j;
+
+
+	for(j = 0; j < inputCount; j++)
+	{
+		printf("%c ", inputs[line][j]);
+	}
+	//printf("| ");
+	for(j = 0; j < outputCount; j++)
+	{
+		printf("%c ", outputs[line][j]);
+	}
+	printf("\n");
+
+}
+
 void PrintList()
 {
 
@@ -472,6 +488,7 @@ int GrayToInt(int gray)
 	while(i < 100)
 	{
 		if(gray == GrayCode(i)) return i;
+		i++;
 	}
 	return 0;
 }

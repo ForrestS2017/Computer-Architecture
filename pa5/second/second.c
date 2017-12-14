@@ -8,8 +8,8 @@ int main(int argc, char** argv)
 	//PrintBlocks();
 	FillInput();
 	CalculateOutput();
-
-	PrintGreyCode();
+	//printf("%d", inputLength);
+	//PrintGreyCode();
 	//printf("%lf\n", (log((double)8.0)/log(2.0)));
 	return 0;
 }
@@ -39,11 +39,12 @@ void CalculateOutput()
 		for(k = 0; k < outputCount; k++)
 		{
 
-		//	printf("==%s==\n", temp->name);
+			//printf("==%s==\n", temp->name);
 			outputs[i][k] = Operate(temp->name) + '0';
 			temp = temp->next;
 			ResetValues();
 		}
+		PrintGreyCodeLine(i);
 	}
 }
 
@@ -75,6 +76,7 @@ int Operate(char* target)
 	//printf("InSize: %d / %d\n", currentBlock->inputCount, selectorCount);
 	int i, temp, k;
 	// Actual Evaluation
+
 	for(i = 0, k = 0; i < currentBlock->inputCount; i++, k++)
 	{
 		//printf("INPUT: %s\n", currentBlock->inputs[i]);
@@ -83,35 +85,19 @@ int Operate(char* target)
 		{
 			////printf("1v^v^v^\n");
 			tempValues[i] = (int)(currentBlock->inputs[i][0]-48);
-			if(selectorCount > 0 && i < currentBlock->selectorCount)
-			{
-				printf("SELECT: %s\n", currentBlock->selectors[i]);
-				if(currentBlock->selectors[i][0] == '0' || currentBlock->selectors[i][0] == '1' )
-				{
-					////printf("2v^v^v^\n");
-					selectValues[i] = (int)(currentBlock->selectors[i][0]-48);
-					continue;
-				}
-				searchResult = SearchVariable(currentBlock->selectors[i]);
-				temp = searchResult->value;
-				if(searchResult->type != 0 && searchResult->value < 0){ temp = Operate(searchResult->name);}
-				//else{ //printf("R-Name: %s\t%d\n", searchResult->name, searchResult->value);}
-				// Enter the values into our Selector array
-				searchResult->value = temp;
-				selectValues[i] = temp;
-			}
-			continue;
 		}
-		// Otherwise, recurse and get the value
-		searchResult = SearchVariable(currentBlock->inputs[i]);
-		temp = searchResult->value;
-		if(searchResult->type != 0 && searchResult->value < 0){ temp = Operate(searchResult->name);}
-		// Enter the value into our temp array
-		searchResult->value = temp;
-		tempValues[i] = temp;
-
-		// Process selectors if there are any
-
+		else
+		{
+			// Otherwise, recurse and get the value
+			searchResult = SearchVariable(currentBlock->inputs[i]);
+			temp = searchResult->value;
+			if(searchResult->type != 0 && searchResult->value < 0){ temp = Operate(searchResult->name);}
+			// Enter the value into our temp array
+			searchResult->value = temp;
+			tempValues[i] = temp;
+			//printf("Name: %s\n", searchResult->name);
+			// Process selectors if there are any
+		}
 		if(selectorCount > 0 && i < currentBlock->selectorCount)
 		{
 			//printf("SELECT: %s\n", currentBlock->selectors[i]);
@@ -123,13 +109,13 @@ int Operate(char* target)
 			}
 			searchResult = SearchVariable(currentBlock->selectors[i]);
 			temp = searchResult->value;
-			if(searchResult->type != 0 && searchResult->value < 0){ temp = Operate(searchResult->name);}
-			//else{ //printf("R-Name: %s\t%d\n", searchResult->name, searchResult->value);}
+			if(searchResult->type != 0 && searchResult->value < 0) temp = Operate(searchResult->name);
 			// Enter the values into our Selector array
 			searchResult->value = temp;
 			selectValues[i] = temp;
 			//	//printf("ST[%d]: %d\n",i, selectValues[i]);
 		}
+
 	}
 	////printf("To_Select: %d %d %d \n", selectValues[0], selectValues[1], selectValues[2]);
 
@@ -174,16 +160,16 @@ int Operate(char* target)
 			if(strcmp(currentBlock->outputs[i], target) == 0) break;
 		}
 		// Convert to grey code binary
+		//printf("I: %d\t", i);
 		temp = GrayCode(i);
 		// Check if input is equal to grey code
 		i = PIntToInt(tempValues, currentBlock->inputCount);
+		//printf("P: %d\n", i);
 		//printf("D: %d == %d\n", temp, i);
 		if(temp == i) return 1;
+		//printf("FAIL(%d): %d\n", iteration, i);
 		return 0;
 	case 8:	// MULTIPLEXER
-		//printf("To Select: %d %d %d\n", selectValues[0], selectValues[1], count);
-		//temp = ToDecimal(selectValues, count);
-		//temp = ToDecimal(GrayToBinary(selectValues, count), count);
 		// Find input with corresponding graycode
 		k = PIntToInt(selectValues, currentBlock->selectorCount);
 		//printf("K: %d\n\n", k);
@@ -193,10 +179,10 @@ int Operate(char* target)
 			Variable* Temp = SearchVariable(currentBlock->inputs[i]);
 			if(!Temp)	// If our desired input is actually a 1/0, we will get a null TEMP
 			{
+				//printf("T: %d", temp);
 				temp = GrayToInt(k);
 				break;
 			}
-			//int k = 1;
 
 			if (Temp->graycode == k)
 			{
