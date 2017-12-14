@@ -27,6 +27,7 @@ typedef struct variable
 	struct variable * next;
 	int type;					// 0 = IN, 1 = OUT, 2 = TEMP
 	int order;
+	int graycode;
 	//struct variable* prev;
 
 } Variable;
@@ -67,7 +68,7 @@ Block* CreateBlock(int type, int inSize, int outSize, int selectSize, char** inp
 	return retBlock;
 }
 
-void AddTempVar(char* inName, int type)	// type: 0 = IN, 1 = temp
+Variable* AddTempVar(char* inName, int type)	// type: 0 = IN, 1 = temp
 {
 	// If we have no temporary variables, start the list
 
@@ -83,7 +84,7 @@ void AddTempVar(char* inName, int type)	// type: 0 = IN, 1 = temp
 			// Check we are not adding a duplicate
 			if(strcmp(traverseHead->name, inName) == 0)
 			{
-				return;
+				return traverseHead;
 			}
 			// We just add to the end of the list marked by next == NULL
 			if(traverseHead->next == NULL)
@@ -91,7 +92,7 @@ void AddTempVar(char* inName, int type)	// type: 0 = IN, 1 = temp
 				traverseHead->next = tempAdd;
 				//tempAdd->prev = traverseHead;
 				tempAdd->next = NULL;
-				return;
+				return tempAdd;
 			}
 			traverseHead = traverseHead->next;
 		}
@@ -101,8 +102,9 @@ void AddTempVar(char* inName, int type)	// type: 0 = IN, 1 = temp
 	{
 		TempHead = (Variable*)malloc(sizeof(Variable));
 		TempHead = CreateVariable(inName, type);
-		return;
+		return TempHead;
 	}
+	return NULL;
 }
 
 void AddBlock(int type, int inSize, int outSize, int selectSize, char** inputs, char** outputs, char** selectors)// type: 0 = IN, 1 = temp
@@ -303,7 +305,7 @@ void PrintGreyCode()
 		{
 			printf("%c ", inputs[i][j]);
 		}
-		printf("| ");
+		//printf("| ");
 		for(j = 0; j < outputCount; j++)
 		{
 			printf("%c ", outputs[i][j]);
@@ -412,6 +414,30 @@ void PrintBlocks()
 }
 
 
+
+
+int IntToBinary(int n)
+{
+	int binaryNumber = 0;
+	int remainder, i = 1;
+
+	while (n!=0)
+	{
+		remainder = n%2;
+		n /= 2;
+		binaryNumber += remainder*i;
+		i *= 10;
+	}
+	return binaryNumber;
+}
+
+int GrayCode(int n)
+{
+	int grayCode = n ^ (n/ 2);
+	return IntToBinary(grayCode); // Converts the num to binary pattern w/o padding
+	//return 1;
+}
+
 int ToDecimal(int* input, int length)
 {
 	int result = 0;
@@ -421,7 +447,33 @@ int ToDecimal(int* input, int length)
 	{
 		result += (int)(input[i])*pow(2,j);
 	}
+	//printf("ToDecimal: %d\n", result);
 	return result;
+}
+
+int PIntToInt(int* input, int len)
+{
+	//printf("Selectors: ");
+	int ret = 0;
+	int i = 0; int j = 0;
+	for(i = len-1; i >= 0; i--, j++)
+	{
+		//printf("%d", input[i]);
+		ret += input[i]*(int)(pow(10, j) + 0.0001);
+	}
+	//printf("\n");
+	//printf("PIntToInt: %d\n", ret);
+	return ret;
+}
+
+int GrayToInt(int gray)
+{
+	int i = 0;
+	while(i < 100)
+	{
+		if(gray == GrayCode(i)) return i;
+	}
+	return 0;
 }
 
 #endif /* SECOND_H_ */
