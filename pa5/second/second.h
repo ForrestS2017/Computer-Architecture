@@ -23,7 +23,7 @@ typedef struct variable
 {
 	char* name;
 	int value;					// 0 or 1, or -1 unset
-	struct variable * next;
+	struct variable * next;		// Variables will be stored in a linked list
 	int type;					// 0 = IN, 1 = OUT, 2 = TEMP
 	int order;
 	int graycode;
@@ -35,7 +35,7 @@ typedef struct block
 	int type; 			// {1 NOT | 2 AND | 3 OR | 4 NAND | 5 NOR | 6 XOR | 7 DECODER | 8 MULTIPLEXER}
 	char** inputs;		// Will hold all inputs in order of entry
 	char** outputs;		// Will hold all outputs in order of exit
-	char** selectors;		// Will hold all selectors in order of entry
+	char** selectors;	// Will hold all selectors in order of entry
 	int inputCount, outputCount, selectorCount;
 	struct block* next;
 } Block;
@@ -44,7 +44,7 @@ Variable* CreateVariable(char* cName, int type)
 {
 	struct variable* retVar = (struct variable*)malloc(sizeof(struct variable));
 	retVar->name = cName;
-	retVar->value = -1;
+	retVar->value = -1;		// Initial unevaluated value is -1
 	retVar->next = NULL;
 	retVar->type = type;
 	//retVar->prev = NULL;
@@ -95,13 +95,13 @@ Variable* AddTempVar(char* inName, int type)	// type: 0 = IN, 1 = temp
 			traverseHead = traverseHead->next;
 		}
 	}
-
-	if(TempHead == NULL)
+	else
 	{
 		TempHead = (Variable*)malloc(sizeof(Variable));
 		TempHead = CreateVariable(inName, type);
 		return TempHead;
 	}
+
 	return NULL;
 }
 
@@ -116,14 +116,16 @@ void AddBlock(int type, int inSize, int outSize, int selectSize, char** inputs, 
 		tempAdd = CreateBlock(type, inSize, outSize, selectSize, inputs, outputs, selectors);
 		tempAdd->next = BlockHead;
 		BlockHead = tempAdd;
+		return;
 	}
-
-	if(BlockHead == NULL)
+	else
 	{
 		BlockHead = (Block*)malloc(sizeof(Block));
 		BlockHead = CreateBlock(type, inSize, outSize, selectSize, inputs, outputs, selectors);
 		return;
 	}
+
+
 }
 
 Variable* SearchVariable(char* name)	// Search for a Variable, using name, input or output
@@ -224,10 +226,10 @@ void FillInput( )	// Fill char** input array with grey code sequence
 		size--;
 	}
 	inputCount = amount;		// Global variable instantiation
-	inputLength = len;				// Global variable instantiation
+	inputLength = len;			// Global variable instantiation
 
 	// Allocate space for input array
-	inputs = (char**)malloc(len*sizeof(char*));	// Create a list of length len (2^amount)
+	inputs = (char**)malloc(len*sizeof(char*));					// Create a list of length len (2^amount)
 	for(i = 0; i < len; i++)
 	{
 		inputs[i] = (char*)malloc((amount)*sizeof(char));		// Each row should be length of input amount. Each input is a bit
@@ -238,24 +240,24 @@ void FillInput( )	// Fill char** input array with grey code sequence
 	{											// High-level row index
 		for(pos = 0; pos < len-size;)			// While our index is within bounds
 		{
-			for(j = 0; j < size; j++)			// j is 0's. j will always start count at current row position
+			for(j = 0; j < size; j++)				// j is 0's. j will always start count at current row position
 			{
-				inputs[pos+j][i] = '0';			//
+				inputs[pos+j][i] = '0';
 			}
 			pos += size; if(pos>len-size) break;
-			for(k = 0; k < size; k++)			// k is 1's. k will always start count at current row position
+			for(k = 0; k < size; k++)				// k is 1's. k will always start count at current row position
 			{
 				inputs[pos+k][i] = '1';
 			}
-			pos += size; if(pos>len-size) break; //if(pos>len-size) break;
-			for(k = 0; k < size; k++)			// k is 1's. k will always start count at current row position
+			pos += size; if(pos>len-size) break; 	//if(pos>len-size) break;
+			for(k = 0; k < size; k++)				// k is 1's. k will always start count at current row position
 			{
 				inputs[pos+k][i] = '1';
 			}
 			pos += size; if(pos>len-size) break;
-			for(j = 0; j < size; j++)			// j is 0's. j will always start count at current row position
+			for(j = 0; j < size; j++)				// j is 0's. j will always start count at current row position
 			{
-				inputs[pos+j][i] = '0';			//
+				inputs[pos+j][i] = '0';
 			}
 			pos += size; if(pos>len-size) break;
 		}
@@ -303,7 +305,6 @@ void PrintGreyCode()
 		{
 			printf("%c ", inputs[i][j]);
 		}
-		//printf("| ");
 		for(j = 0; j < outputCount; j++)
 		{
 			printf("%c ", outputs[i][j]);
@@ -323,7 +324,6 @@ void PrintGreyCodeLine(int line)
 	{
 		printf("%c ", inputs[line][j]);
 	}
-	//printf("| ");
 	for(j = 0; j < outputCount; j++)
 	{
 		printf("%c ", outputs[line][j]);
@@ -463,7 +463,6 @@ int ToDecimal(int* input, int length)
 	{
 		result += (int)(input[i])*pow(2,j);
 	}
-	//printf("ToDecimal: %d\n", result);
 	return result;
 }
 
@@ -474,11 +473,8 @@ int PIntToInt(int* input, int len)
 	int i = 0; int j = 0;
 	for(i = len-1; i >= 0; i--, j++)
 	{
-		//printf("%d", input[i]);
 		ret += input[i]*(int)(pow(10, j) + 0.0001);
 	}
-	//printf("\n");
-	//printf("PIntToInt: %d\n", ret);
 	return ret;
 }
 

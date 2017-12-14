@@ -4,13 +4,8 @@ int main(int argc, char** argv)
 {
 	outputCount = 5;
 	ReadBuildGraph(argc, argv);
-	//PrintList();
-	//PrintBlocks();
 	FillInput();
 	CalculateOutput();
-	//printf("%d", inputLength);
-	//PrintGreyCode();
-	//printf("%lf\n", (log((double)8.0)/log(2.0)));
 	return 0;
 }
 
@@ -21,25 +16,19 @@ void CalculateOutput()
 	for(i = 0; i < inputLength; i++, k = 0)
 	{
 
-		iteration = i;
-		//outputs[i] = (char*)malloc(outputCount*sizeof(char));		// Allocate space for outputCount output count
 		// Fill in inputs
 		temp = InHead;
 		while(temp && k < inputCount)
 		{
-			//printf("%c %d\n", inputs[i][k], inputs[i][k]-48);
 			temp->value = (int)(inputs[i][k] - 48);
-			//printf("CHECK %s: %d\n", temp->name, temp->value);
 			temp = temp->next;
 			k++;
 		}
 		// Fill in rows of output
 		temp = OutHead;
-		//ResetValues();
 		for(k = 0; k < outputCount; k++)
 		{
 
-			//printf("==%s==\n", temp->name);
 			outputs[i][k] = Operate(temp->name) + '0';
 			temp = temp->next;
 			ResetValues();
@@ -50,15 +39,9 @@ void CalculateOutput()
 
 int Operate(char* target)
 {
-	////printf("\n");
 	/*------ START BASE CASE ------*/
-	//printf("\nT: %s\n", target);
-	if(target[0] == '0'){return 0;}
-	if(target[0] == '1'){return 1;}
-	////printf("Target: %s\n", target);
-	// Otherwise, we might get a Input Base Case when checked against inputs[order], so return the value if true
+	//  Input Base Case when checked against inputs[order], so return the value if true
 	Variable* searchResult = SearchVariable(target);
-	////printf("V-Name: %s\t%d\n", searchResult->name, searchResult->value);
 	if(searchResult->type == 0){ //printf("Input\n");
 		return searchResult->value;}
 	if(searchResult->value > -1){ //printf("Exists\n");
@@ -67,43 +50,38 @@ int Operate(char* target)
 
 	// Find block that contains the targeted value
 	Block* currentBlock = SearchBlock(target, 1);	// Use 1 because our target is the output. From this we can get inputs
-	//printf("B-Type: %d\n", currentBlock->type);
 
 	// Check if the values are filled in. if not, recurse!
-	int* tempValues = (int*)calloc(currentBlock->inputCount , sizeof(int));	// Create an array to hold all input variable values to easily use
-	int* selectValues = (int*)calloc(currentBlock->selectorCount, sizeof(int));
+	int* tempValues = (int*)calloc(currentBlock->inputCount , sizeof(int));		// Create an array to hold all input variable values to easily use
+	int* selectValues = (int*)calloc(currentBlock->selectorCount, sizeof(int));	// Create an array to hold all selector variable values to easily use
 	int selectorCount = currentBlock->selectorCount;
-	//printf("InSize: %d / %d\n", currentBlock->inputCount, selectorCount);
 	int i, temp, k;
 	// Actual Evaluation
 
 	for(i = 0, k = 0; i < currentBlock->inputCount; i++, k++)
 	{
-		//printf("INPUT: %s\n", currentBlock->inputs[i]);
 		// If we have a digit, we don't need to recurse
 		if(currentBlock->inputs[i][0] == '0' || currentBlock->inputs[i][0] == '1' )
 		{
-			////printf("1v^v^v^\n");
 			tempValues[i] = (int)(currentBlock->inputs[i][0]-48);
 		}
+		// If we have a variable name, search for it
 		else
 		{
-			// Otherwise, recurse and get the value
 			searchResult = SearchVariable(currentBlock->inputs[i]);
 			temp = searchResult->value;
+			// If the variable is not already evaluated, search for it
 			if(searchResult->type != 0 && searchResult->value < 0){ temp = Operate(searchResult->name);}
 			// Enter the value into our temp array
 			searchResult->value = temp;
 			tempValues[i] = temp;
-			//printf("Name: %s\n", searchResult->name);
 			// Process selectors if there are any
 		}
+
 		if(selectorCount > 0 && i < currentBlock->selectorCount)
 		{
-			//printf("SELECT: %s\n", currentBlock->selectors[i]);
 			if(currentBlock->selectors[i][0] == '0' || currentBlock->selectors[i][0] == '1' )
 			{
-				////printf("2v^v^v^\n");
 				selectValues[i] = (int)(currentBlock->selectors[i][0]-48);
 				continue;
 			}
@@ -113,11 +91,9 @@ int Operate(char* target)
 			// Enter the values into our Selector array
 			searchResult->value = temp;
 			selectValues[i] = temp;
-			//	//printf("ST[%d]: %d\n",i, selectValues[i]);
 		}
 
 	}
-	////printf("To_Select: %d %d %d \n", selectValues[0], selectValues[1], selectValues[2]);
 
 	// Now, we will operate on our tempValues, based on the type # which corresponds to a gate type, and it will be returned
 	switch(currentBlock->type)
@@ -125,82 +101,65 @@ int Operate(char* target)
 	case 1:	// NOT
 		temp = !tempValues[0];
 		SearchVariable(currentBlock->outputs[0])->value = temp;
-		//printf("1-OUT: %s@%d (!%d)\n", currentBlock->outputs[0], temp, tempValues[0]);
 		return temp;
 	case 2:	// AND
 		temp = tempValues[0] && tempValues[1];
 		SearchVariable(currentBlock->outputs[0])->value = temp;
-		//printf("2-OUT: %s@%d (%d && %d)\n", currentBlock->outputs[0], temp, tempValues[0], tempValues[1]);
 		return temp;
 	case 3:	// OR
 		temp = tempValues[0] || tempValues[1];
 		SearchVariable(currentBlock->outputs[0])->value = temp;
-		//printf("3-OUT: %s@%d (%d || %d)\n", currentBlock->outputs[0], temp, tempValues[0], tempValues[1]);
 		return temp;
 	case 4:	// NAND
 		temp = !(tempValues[0] && tempValues[1]);
 		SearchVariable(currentBlock->outputs[0])->value = temp;
-		//printf("4-OUT: %s@%d !(%d && %d)\n", currentBlock->outputs[0], temp, tempValues[0], tempValues[1]);
 		return temp;
 	case 5:	// NOR
 		temp = !(tempValues[0] || tempValues[1]);
 		SearchVariable(currentBlock->outputs[0])->value = temp;
-		//printf("5-OUT: %s@%d !(%d || %d)\n", currentBlock->outputs[0], temp, tempValues[0], tempValues[1]);
 		return temp;
 	case 6:	// XOR
 		temp = tempValues[0] ^ tempValues[1];
 		SearchVariable(currentBlock->outputs[0])->value = temp;
-		//printf("6-OUT: %s@%d (%d ^ %d)\n", currentBlock->outputs[0], temp, tempValues[0], tempValues[1]);
 		return temp;
 	case 7:	// DECODER
-		// Find what index the grey code is
 
+		// Find what index the grey code is
 		for(i = 0; i < currentBlock->outputCount; i++)
 		{
 			if(strcmp(currentBlock->outputs[i], target) == 0) break;
 		}
 		// Convert to grey code binary
-		//printf("I: %d\t", i);
 		temp = GrayCode(i);
 		// Check if input is equal to grey code
 		i = PIntToInt(tempValues, currentBlock->inputCount);
-		//printf("P: %d\n", i);
-		//printf("D: %d == %d\n", temp, i);
 		if(temp == i) return 1;
-		//printf("FAIL(%d): %d\n", iteration, i);
 		return 0;
 	case 8:	// MULTIPLEXER
+
 		// Find input with corresponding graycode
 		k = PIntToInt(selectValues, currentBlock->selectorCount);
-		//printf("K: %d\n\n", k);
-		//printf("InCount: %d", currentBlock->inputCount);
 		for(i = 0; i < currentBlock->inputCount; i++)
 		{
 			Variable* Temp = SearchVariable(currentBlock->inputs[i]);
-			if(!Temp)	// If our desired input is actually a 1/0, we will get a null TEMP
+			// If our desired input is actually a 1/0, we will get a null TEMP
+			if(!Temp)
 			{
-				//printf("T: %d", temp);
 				temp = GrayToInt(k);
 				break;
 			}
-
+			// Otherwise, we have a Variable returned, and we can check it's gray code order
 			if (Temp->graycode == k)
 			{
-				//printf("TEMP%d:::: %d~%d ",i,  temp, k);
-				//temp = ToDecimal(selectValues, count);
 				temp = i;
-				//printf("<%d\n", temp);
 				break;
 			}
-			//printf(">%s,%d", Temp->name, Temp->graycode);
 		}
-		//printf("\nSelected: %d) %d (%d)\n", temp, tempValues[temp], iteration);
+		// Now, get the temp variable w/ corresponding gray code and return it
 		temp = tempValues[temp];
 		return temp;
 	}
-	// If desired value is < 0, go through all inputs
 
-	// if input is non-digit and < 0, set it equal to the Operate()
 
 	return 0;
 }
@@ -238,23 +197,17 @@ void ReadBuildGraph(int argc, char** argv)
 	while(r != EOF)
 	{
 		if(r == EOF) break;
-		//printf("\n\n===%s===\n\n", tempString);
-		//if(TempHead) //printf("_TempHead: %s\n", TempHead->name);
 		if(strcmp("INPUTVAR", tempString) == 0)
 		{
 			fscanf(fp, "%d ", &len);
 			if(len == 0) return;
-			//printf("%d\n", len);
 			inputCount = len;
 			Variable* temp;
 
 			for(i = 0; i < len; i++)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
-				//if(InHead)	//printf("HeadName: %s\tTempName: %s\n", InHead->name, inputString);
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
-				//if(inputString[0] == '\n') break;
 
 				if(i == 0)
 				{
@@ -281,16 +234,12 @@ void ReadBuildGraph(int argc, char** argv)
 		else if(strcmp("OUTPUTVAR", tempString) == 0)
 		{
 			fscanf(fp, "%d ", &len);
-			//printf("%d\n", len);
 			outputCount = len;
 			Variable* temp;
 			for(i = 0; i < len; i++)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
-				//if(OutHead)	//printf("HeadName: %s\tTempName: %s\n", OutHead->name, inputString);
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
-				//if(inputString[0] == '\n') break;
 
 				if(i == 0)
 				{
@@ -327,7 +276,6 @@ void ReadBuildGraph(int argc, char** argv)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 				if(i < 1) inputsForBlock[i] = inputString;
 				if(i >= 1) outputsForBlock[0] = inputString;
@@ -347,7 +295,6 @@ void ReadBuildGraph(int argc, char** argv)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 
 				if(i < 2) inputsForBlock[i] = inputString;
@@ -369,7 +316,6 @@ void ReadBuildGraph(int argc, char** argv)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 
 				if(i < 2) inputsForBlock[i] = inputString;
@@ -392,7 +338,6 @@ void ReadBuildGraph(int argc, char** argv)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 
 				if(i < 2) inputsForBlock[i] = inputString;
@@ -414,7 +359,6 @@ void ReadBuildGraph(int argc, char** argv)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 
 				if(i < 2) inputsForBlock[i] = inputString;
@@ -437,7 +381,6 @@ void ReadBuildGraph(int argc, char** argv)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 
 				if(i < 2) inputsForBlock[i] = inputString;
@@ -455,28 +398,26 @@ void ReadBuildGraph(int argc, char** argv)
 			char** inputsForBlock = (char**)malloc(len*sizeof(char*));
 			for(i = 0; i < 2; i++) inputsForBlock[i] = (char*)malloc(64*sizeof(char));
 
-			// Loop through line and get input/outputs
+			// Loop through line and get input
 			for(i = 0; i < len; i++)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 				inputsForBlock[i] = inputString;
 			}
 
 
-			// Allocate space for in/out names
+			// Allocate space for out names
 			int len2 = pow(2, len);
 			char** outputsForBlock = (char**)malloc(len2*sizeof(char*));
 			for(i = 0; i < 1; i++) outputsForBlock[i] = (char*)malloc(64*sizeof(char));
 
-			// Loop through line and get input/outputs
+			// Loop through line and get outputs
 			for(i = 0; i < len2; i++)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 				outputsForBlock[i] = inputString;
 			}
@@ -486,7 +427,6 @@ void ReadBuildGraph(int argc, char** argv)
 		}
 		else if(strcmp("MULTIPLEXER", tempString) == 0)
 		{
-			//Variable* Temp = NULL;
 			// Allocate space for in/out names
 			r = fscanf(fp, "%d", &len);
 			char** inputsForBlock = (char**)malloc(len*sizeof(char*));
@@ -494,11 +434,9 @@ void ReadBuildGraph(int argc, char** argv)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
 				r = fscanf(fp, "%s ", inputString);
-				//printf("_%s\n", inputString);
 				if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 				inputsForBlock[i] = inputString;
 				if(inputString[0] != '0' && inputString[0] != '1' )SearchVariable(inputString)->graycode = GrayCode(i);
-				//printf("****G: %d", SearchVariable(inputString)->graycode);
 			}
 
 			// Allocate space for selector names
@@ -506,7 +444,7 @@ void ReadBuildGraph(int argc, char** argv)
 			char** selectorsForBlock = (char**)malloc(len2*sizeof(char*));
 			for(i = 0; i < 1; i++) selectorsForBlock[i] = (char*)malloc(64*sizeof(char));
 
-			// Loop through line and get selectors
+			// Iterate through line and get selectors
 			for(i = 0; i < len2; i++)
 			{
 				char* inputString = (char*)malloc(64*sizeof(char));
@@ -519,16 +457,14 @@ void ReadBuildGraph(int argc, char** argv)
 			// Allocate space for out names
 			char* inputString = (char*)malloc(64*sizeof(char));
 			r = fscanf(fp, "%s ", inputString);
-			//printf("_%s\n", inputString);
 			if(inputString[0] >= 'a') AddTempVar(inputString, 2);
 			char** outputsForBlock = (char**)malloc(len*sizeof(char*));
 			outputsForBlock[0] = inputString;
-			////printf("MULTIPLEXXXXXX\n");
 
 			AddBlock(8, len, 1, len2, inputsForBlock, outputsForBlock, selectorsForBlock);
 
 		}
-		// Get var count
+		// Get next operation
 		r = fscanf(fp, "%s ", tempString);
 
 	}
