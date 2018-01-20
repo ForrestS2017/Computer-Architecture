@@ -1,0 +1,41 @@
+Cache Simulator
+
+This program simulates memory access traces of computer caches. The input is a memory access trace containing memory addresses and actions taken on the addresses.
+This program simulates the running of these actions and determines if there is a hit, miss, and resulting actions to perform.
+This program supports cache policies: FIFO and LRU, and can handle any cache associativity and size.
+
+Format for trace file:
+
+"Program Counter": "Read (R) / Write (W)" "48-bit memory address"
+
+0x804be19: R 0x9cbad40 
+0x804be19: W 0x9cbad40 
+0x804be1c: R 0x9cbad44 
+0x804be1c: W 0x9cbad44 
+0x804be10: R 0xbf8ff498 
+#eof 
+
+Usage interface:
+
+./first <cache size> <associativity><cache policy> <block size> <trace file>
+
+<cache size>: size of cache in bytes, as a power of 2
+<associativity>: "direct" for a direct mapped cache, "assoc" for a fully associative cache, or "assoc:n" for an n-way associative cache
+<cache policy>: "fifo" for First-In-First-Out, or "lru" for Least Recently Used
+<block size>: block size in bytes, as a power of 2
+<tracefile>: name of trace file
+
+Output Format:
+
+The output prints out the reads, writes, hits and misses for a no-prefetch run and a pre-fetch run.
+
+no-prefetch 
+Memory reads: 3499 
+Memory writes: 2861 
+Cache hits: 6501 
+Cache misses: 3499 
+with-prefetch 
+Memory reads: 3521 
+Memory writes: 2861 
+Cache hits: 8124 
+Cache misses: 1876

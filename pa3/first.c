@@ -4,50 +4,52 @@
 #include <string.h>
 #include "first.h"
 
+void PFRWData(Address* address, char op);	// Pre-Fetch Read-Write Data FIFO
+void NFRWData(Address* address, char op);	// No-Fetch Read-Write Data FIFO
+void PreFetch(Address* address);
+
 int main(int argc, char** argv)
 {
 
 	FileOpenCacheSetup(argc, argv);
-	//PreFetchRW(argv);
 	NonFetchRW(argv);
-	//NFPrint();
-	//PFPrint();
-	PrintCache(0);
-	//printf("%s", ToBinary("999999999999"));
-	printf("Tag Bits:\t%d\nSet Bits:\t%d\nBlock Bits:\t%d", pCache->tagBits, pCache->setBits, pCache->blockBits );
+	PreFetchRW(argv);
+	NFPrint();
+	PFPrint();
 	return 0;
 }
 
-void PreFetchRW(char** argv)
+void PreFetchRW(char** argv)	// pf == 1
 {
+	counter = 0;
 	FILE *fp;
 	fp = fopen(argv[5], "r");
 	//int hexAddress;
 	//printf("\nSets: %d, Lines: %d\n", pCache->setCount, pCache->Sets[0]->lineCount);
 
 	//Take care of reading the file in this method. Delegated so we can reuse in NonFetchRW()
-	RWEntries(fp, pCache->setBits, pCache->tagBits, pCache->blockBits);
+	RWEntries(fp, pCache->setBits, pCache->tagBits, pCache->blockBits, 1);
 	fclose(fp);
 }
 
-void NonFetchRW(char** argv)
+void NonFetchRW(char** argv)	//pf = 0
 {
+	counter = 0;
 	FILE *fp;
 	fp = fopen(argv[5], "r");
-	//int hexAddress;
-	//printf("\nSets: %d, Lines: %d\n", pCache->setCount, pCache->Sets[0]->lineCount);
 
 	//Take care of reading the file in this method. Delegated so we can reuse in NonFetchRW()
-	RWEntries(fp, nCache->setBits, nCache->tagBits, nCache->blockBits);
+	RWEntries(fp, nCache->setBits, nCache->tagBits, nCache->blockBits, 0);
 	fclose(fp);
 }
 
-void RWEntries(FILE* fp, int sBits, int tBits, int bBits)
+void RWEntries(FILE* fp, int sBits, int tBits, int bBits, int pf)
 {
 	int r = 1;
 	char op;
-	char* bAddress = (char*)calloc(48, sizeof(char));
-	char* hexAddress = (char*)calloc(12, sizeof(char));
+	char* bAddress = (char*)calloc(49, sizeof(char));
+	char* hexAddress = (char*)calloc(13, sizeof(char));
+	Address* address = NULL;
 	int pc;
 
 	// We must read all entries, so loop through the entire document
@@ -57,20 +59,387 @@ void RWEntries(FILE* fp, int sBits, int tBits, int bBits)
 		fscanf(fp, "%x: ", &pc);
 		fscanf(fp, "%c ", &op);
 		if(op == '#') break;
-		fscanf(fp, "%s\n", hexAddress);
+
+		fscanf(fp, "0x%s\n", hexAddress);
 		bAddress = ToBinary(hexAddress);
-		printf("%x: %c %s\t%s\n", pc, op, hexAddress, bAddress);
+		address = CreateAddress(substring(bAddress, 0, nCache->tagBits), substring(bAddress, nCache->tagBits, nCache->setBits), hexAddress);
+		//printf("%c: ", op); printAddress(address);
+
+		switch(pf)
+		{
+		case 0:
+			NFRWData(address, op);
+			break;
+		case 1:
+			PFRWData(address, op);
+			break;
+		}
+	}
+}
+
+void PFRWData(Address* address, char op)
+{
+	if( !address) return;
+	int set, lineCount, i;	// Declare variables to be used
+	char* tag;
+	char* tempTag;
+	Set* cSet;
+	Line* cLine;
+	if(op == 'W') goto _Write;
+
+	// --Read--
+
+	set = ToDecimal(address->set);
+	tag = address->tag;
+	tempTag = NULL;
+	cSet = pCache->Sets[set];
+	lineCount = pCache->Sets[0]->lineCount;
+	cLine = NULL;
+	// Look for line
+	for( i = 0; i < lineCount; i++)
+	{
+		if(cSet->Lines[i]->valid == 1)
+		{	// If valid == 0, continue to prevent n-pointer issues
+			tempTag = cSet->Lines[i]->tag;
+			// Check the hit
+			if(strcmp(tempTag, tag) == 0)
+			{
+				// Update counters
+				if(cachePolicy == 1)
+				{
+					cSet->Lines[i]->count = counter;
+					counter++;
+				}
+				pCache->hits++;
+				return;
+			}
+		}
+	}
+
+	// If we got a miss
+
+	if(cLine == NULL)
+	{
+		pCache->misses++;
+		pCache->reads++;
+		cLine = cSet->Lines[0];
+
+		// Search for the oldest one
+		for(i = 0; i < lineCount; i++)
+		{
+			// Get lowest count line
+			if(cSet->Lines[i]->count <= cLine->count ) cLine = cSet->Lines[i];
+			// If we find an empty line
+			if(cSet->Lines[i]->valid == 0)
+			{
+				cSet->Lines[i]->valid = 1;
+				cSet->Lines[i]->tag = tag;
+				cSet->Lines[i]->count = counter;
+				if(cachePolicy == 0) counter++;
+				PreFetch(address);
+				return;
+			}
+		}
+
+		// We did not find empty spot, so replace cLine, which is now the lowest one.
+		cLine->tag = address->tag;
+		cLine->valid = 1;
+		cLine->count = counter;
+		counter++;
+		PreFetch(address);
+
+		return;
 	}
 
 
+	return;
 
+	// --Write--
+	_Write:
+
+	set = ToDecimal(address->set);
+	tag = address->tag;
+	tempTag = NULL;
+	cSet = pCache->Sets[set];
+	lineCount = pCache->Sets[0]->lineCount;
+	cLine = NULL;
+	pCache->writes++;
+
+	// Look for line
+	for( i = 0; i < lineCount; i++)
+	{
+		if(cSet->Lines[i]->valid == 1)
+		{	// If valid == 0, continue to prevent n-pointer issues
+			tempTag = cSet->Lines[i]->tag;
+			// Check the hit
+			if(strcmp(tempTag, tag) == 0)
+			{
+				// Update counters
+				if(cachePolicy == 1)
+				{
+					cSet->Lines[i]->count = counter;
+					counter++;
+				}
+				pCache->hits++;
+				return;
+			}
+		}
+	}
+
+	// If we got a miss
+	if(cLine == NULL)
+	{
+		pCache->misses++;
+		pCache->reads++;
+		cLine = cSet->Lines[0];
+
+		// Search for the oldest one
+		for(i = 0; i < lineCount; i++)
+		{
+			// Get lowest count line
+			if(cSet->Lines[i]->count <= cLine->count ) cLine = cSet->Lines[i];
+			// If we find an empty line
+			if(cSet->Lines[i]->valid == 0)
+			{
+				cSet->Lines[i]->valid = 1;
+				cSet->Lines[i]->tag = tag;
+				cSet->Lines[i]->count = counter;
+				if(cachePolicy == 0) counter++;
+				PreFetch(address);
+				return;
+			}
+		}
+
+		// We did not find empty spot, so replace cLine, which is now the lowest one.
+		cLine->tag = address->tag;
+		cLine->valid = 1;
+		cLine->count = counter;
+		counter++;
+		PreFetch(address);
+		return;
+	}
+
+	return;
+}
+
+void NFRWData(Address* address, char op)
+{
+	if( !address) return;
+	int set, lineCount, i;	// Declare variables to be used
+	char* tag = NULL;
+	char* tempTag = NULL;
+	Set* cSet = NULL;
+	Line* cLine = NULL;
+	if(op == 'W') goto _Write;
+
+	// --Read--
+
+	set = ToDecimal(address->set);
+	tag = address->tag;
+	tempTag = NULL;
+	cSet = nCache->Sets[set];
+	lineCount = nCache->Sets[0]->lineCount;
+	cLine = NULL;
+	// Look for line
+	for( i = 0; i < lineCount; i++)
+	{
+		if(cSet->Lines[i]->valid == 1)
+		{	// If valid == 0, continue to prevent n-pointer issues
+			tempTag = cSet->Lines[i]->tag;
+			// Check the hit
+			if(strcmp(tempTag, tag) == 0)
+			{
+				// Update counters
+				if(cachePolicy == 1)
+				{
+					cSet->Lines[i]->count = counter;
+					counter++;
+				}
+				nCache->hits++;
+				return;
+			}
+		}
+	}
+
+	// If we got a miss
+
+	if(cLine == NULL)
+	{
+		nCache->misses++;
+		nCache->reads++;
+		cLine = cSet->Lines[0];
+
+		// Search for the oldest one
+		for(i = 0; i < lineCount; i++)
+		{
+			// Get lowest count line
+			if(cSet->Lines[i]->count <= cLine->count ) cLine = cSet->Lines[i];
+			// If we find an empty line
+			if(cSet->Lines[i]->valid == 0)
+			{
+				cSet->Lines[i]->valid = 1;
+				cSet->Lines[i]->tag = tag;
+				cSet->Lines[i]->count = counter;
+				if(cachePolicy == 0) counter++;
+				return;
+			}
+		}
+
+		// We did not find empty spot, so replace cLine, which is now the lowest one.
+		cLine->tag = address->tag;
+		cLine->valid = 1;
+		cLine->count = counter;
+		counter++;
+
+		return;
+	}
+
+
+	return;
+
+	// --Write--
+	_Write:
+
+	set = ToDecimal(address->set);
+	tag = address->tag;
+	tempTag = NULL;
+	cSet = nCache->Sets[set];
+	lineCount = nCache->Sets[0]->lineCount;
+	cLine = NULL;
+	nCache->writes++;
+
+	// Look for line
+	for( i = 0; i < lineCount; i++)
+	{
+		if(cSet->Lines[i]->valid == 1)
+		{	// If valid == 0, continue to prevent n-pointer issues
+			tempTag = cSet->Lines[i]->tag;
+			// Check the hit
+			if(strcmp(tempTag, tag) == 0)
+			{
+				// Update counters
+				if(cachePolicy == 1)
+				{
+					cSet->Lines[i]->count = counter;
+					counter++;
+				}
+				nCache->hits++;
+				return;
+			}
+		}
+	}
+
+	// If we got a miss
+	if(cLine == NULL)
+	{
+		nCache->misses++;
+		nCache->reads++;
+		cLine = cSet->Lines[0];
+
+		// Search for the oldest one
+		for(i = 0; i < lineCount; i++)
+		{
+			// Get lowest count line
+			if(cSet->Lines[i]->count <= cLine->count ) cLine = cSet->Lines[i];
+			// If we find an empty line
+			if(cSet->Lines[i]->valid == 0)
+			{
+				cSet->Lines[i]->valid = 1;
+				cSet->Lines[i]->tag = tag;
+				cSet->Lines[i]->count = counter;
+				if(cachePolicy == 0) counter++;
+				return;
+			}
+		}
+
+		// We did not find empty spot, so replace cLine, which is now the lowest one.
+		cLine->tag = address->tag;
+		cLine->valid = 1;
+		cLine->count = counter;
+		counter++;
+
+		return;
+	}
+
+	return;
+
+}
+
+void PreFetch(Address* address)
+{
+	if( !address) return;
+	int set, lineCount, i;	// Declare variables to be used
+	char* tag;
+	char* tempTag;
+	Set* cSet;
+	Line* cLine;
+	int hex = strtol(address->hex, NULL, 16);
+	hex = hex + pCache->blockSize/8;
+	char* bAddress = (char*)malloc(48 * sizeof(char));
+	sprintf(bAddress, "%x", hex);
+	bAddress = ToBinary(bAddress);
+	address = CreateAddress(substring(bAddress, 0, nCache->tagBits), substring(bAddress, nCache->tagBits, nCache->setBits), "");
+
+	set = ToDecimal(address->set);
+	tag = address->tag;
+	tempTag = NULL;
+	cSet = pCache->Sets[set];
+	lineCount = pCache->Sets[0]->lineCount;
+	cLine = NULL;
+	// Look for line
+	for( i = 0; i < lineCount; i++)
+	{
+		if(cSet->Lines[i]->valid == 1)
+		{	// If valid == 0, continue to prevent n-pointer issues
+			tempTag = cSet->Lines[i]->tag;
+			// Check the hit
+			if(strcmp(tempTag, tag) == 0)
+			{
+				return;
+			}
+		}
+	}
+
+	// If we got a miss
+
+	if(cLine == NULL)
+	{
+		pCache->reads++;
+		cLine = cSet->Lines[0];
+
+		// Search for the oldest one
+		for(i = 0; i < lineCount; i++)
+		{
+			// Get lowest count line
+			if(cSet->Lines[i]->count <= cLine->count ) cLine = cSet->Lines[i];
+			// If we find an empty line
+			if(cSet->Lines[i]->valid == 0)
+			{
+				cSet->Lines[i]->valid = 1;
+				cSet->Lines[i]->tag = tag;
+				//if(cachePolicy == 0) cSet->Lines[i]->count = counter;
+				//counter++;
+				cSet->Lines[i]->count = counter;
+				if(cachePolicy == 0) counter++;
+				return;
+			}
+		}
+
+		// We did not find empty spot, so replace cLine, which is now the lowest one.
+		cLine->tag = address->tag;
+		cLine->valid = 1;
+		cLine->count = counter;
+		counter++;
+
+		return;
+	}
 }
 
 void FileOpenCacheSetup(int argc, char** argv)
 {
 	// ./first <cache size> <associativity> <cache policy> <block size> <trace file>
 	FILE *fp;
-	int cSize, sets, ass, sBits, tBits, bBits, lines;
+	int cSize, setCountS, ass, sBits, tBits, bBits, lineCountE, blockSizeB;
 
 	// Throw error if insufficient argument count
 	if(argc < 6)
@@ -99,86 +468,37 @@ void FileOpenCacheSetup(int argc, char** argv)
 	}
 
 	// Get block size in bytes, convert to bits
-	bBits = atoi(argv[4]) * 8;
+	blockSizeB = atoi(argv[4])*8;
 
 	// Get cache size in bytes, convert to bits
 	cSize = atoi(argv[1]) * 8;
 
 	// Check Association
+	// Get set count as well. Cache Size = bytes per Block * Set count * Lines per Set
 	if(strcmp(argv[2], "direct") == 0){		// Direct-Mapped
 		ass = 0;
-		lines = 1;
-		sets = cSize/bBits;
+		lineCountE = 1;
+		setCountS = cSize/(blockSizeB*lineCountE);
 	}else if(strcmp(argv[2], "assoc") == 0){	// Fully Associative
 		ass = 1;
-		lines = cSize/bBits;
-		sets = 1;
-	}else{									// Partial Associative. argv[2][6] gives lines per set
+		lineCountE = cSize/blockSizeB;
+		setCountS = 1;
+	}else{									// Partial Associative. argv[2][6] gives lineCountE per set
 		ass = 2;
-		lines = argv[2][6] - '0';
-		sets = cSize/(bBits*lines);
+		lineCountE = argv[2][6] - '0';
+		setCountS = cSize/(blockSizeB*lineCountE);
 	}
 
 	fclose(fp);
 
 	//Get length of set index
-	sBits = IntLength(sets);
+	sBits = (int)(log((double)setCountS)/log(2.0));
+	bBits = (int)(log((double)(blockSizeB/8))/log(2.0));
 	tBits = 48 - sBits - bBits;
 
 	//Create two separate Caches, one w/ and one w/o pre-fetch. Non-pre-fetch will run first in main();
-	nCache = CreateCache(sets, ass, sBits, tBits, bBits, 0, cachePolicy, lines);
-	pCache = CreateCache(sets, ass, sBits, tBits, bBits, 1, cachePolicy, lines);
+	nCache = CreateCache(setCountS, ass, sBits, tBits, bBits, blockSizeB, 0, cachePolicy, lineCountE);
+	pCache = CreateCache(setCountS, ass, sBits, tBits, bBits, blockSizeB, 1, cachePolicy, lineCountE);
 
 }
 
-void NFPrint()
-{
-	printf("no-prefetch\n");
-	printf("Memory reads: %d\nMemory writes: %d\nCache hits: %d\nCache misses: %d\n", nCache->reads, nCache->writes, nCache->hits, nCache->misses);
-}
-
-void PFPrint()
-{
-	printf("with-prefetch\n");
-	printf("Memory reads: %d\nMemory writes: %d\nCache hits: %d\nCache misses: %d\n", pCache->reads, pCache->writes, pCache->hits, pCache->misses);
-}
-
-void PrintCache(int pf)
-{
-	int sets = pCache->setCount;
-	int lines = pCache->Sets[0]->lineCount;
-	int i, j;
-	if(pf == 0)
-	{
-		printf("vv-----------------Non-Fetch-----------------vv\n");
-		for(i = 0; i < sets; i++){
-			for(j = 0; j < lines; j++){
-				if(nCache->Sets[i]->Lines[j]->valid == 1){
-					printf("[%d][%lu][Block]--[%d]\n", nCache->Sets[i]->Lines[j]->valid, nCache->Sets[i]->Lines[j]->tag, nCache->Sets[i]->Lines[j]->count);
-				}else{
-					printf("[0][empty][null]--[unset]\n");
-				}
-			}
-			printf("-----------------------------------\n");
-		}
-		printf("^^-----------------Non-Fetch-----------------^^\n");
-	}
-	else
-	{
-		printf("vv-----------------Pre-Fetch-----------------vv\n");
-		for(i = 0; i < sets; i++){
-			for(j = 0; j < lines; j++){
-				if(pCache->Sets[i]->Lines[j]->valid == 1){
-					printf("[%d][%lu][Block]--[%d]\n", pCache->Sets[i]->Lines[j]->valid, pCache->Sets[i]->Lines[j]->tag, pCache->Sets[i]->Lines[j]->count);
-				}else{
-					printf("[0][empty][null]--[unset]\n");
-				}
-			}
-			printf("-----------------------------------\n");
-		}
-		printf("^^-----------------Pre-Fetch-----------------^^\n");
-
-	}
-
-
-}

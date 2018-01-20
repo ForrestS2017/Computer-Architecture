@@ -1,0 +1,11 @@
+Data Structures in C
+
+First - Linked list insertion and deletion. No duplicates. Print node count, then linked list.
+Second - Array insertion sort. Print sorted array.
+Third - Integer hash table. Print ["inserted', "present", "duplicate", "absent"].
+Fourth - Calculate M^n of matrix M. Print resulting Matrix.
+Fifth - Detect if a matrix is a magic square (size n*n, sum of every individual row, column, and diagonal is the same, no number repeats).
+Sixth - Condense single command line argument string to a string of respective characters each followed by the numbers [1, infinity].
+Seventh - Take the final character of each argument string and print it.
+Eighth - Binary Search Tree w/ insertion and search functions only. Print "inserted"/"present" followed by height.
+Ninth - Binary Search Tree w/ insertion, search, and deletion functions. print "inserted"/"present" followed by height, or "success" for successful deletion.
