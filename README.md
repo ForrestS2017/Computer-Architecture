@@ -1,4 +1,4 @@
-# __**C Projects**__
+# __**Computer Architecture Programs**__
 
 Included topics:
 
@@ -172,3 +172,5 @@ The output file is the result of inputs being passed into the INPUTVAR variables
     1 1 1 1
     1 0 1 1
     1 0 0 1
+
+_Based on Rutgers University course 01:198:211_
