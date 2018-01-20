@@ -17,7 +17,7 @@ Format for trace file:
 
 Usage interface:
 
-./first <cache size> <associativity><cache policy> <block size> <trace file>
+./first <cache size> <associativity> <cache policy> <block size> <trace file>
 
 <cache size>: size of cache in bytes, as a power of 2
 <associativity>: "direct" for a direct mapped cache, "assoc" for a fully associative cache, or "assoc:n" for an n-way associative cache
@@ -30,12 +30,12 @@ Output Format:
 The output prints out the reads, writes, hits and misses for a no-prefetch run and a pre-fetch run.
 
 no-prefetch 
-Memory reads: 3499 
-Memory writes: 2861 
-Cache hits: 6501 
-Cache misses: 3499 
+Memory reads: 3498 
+Memory writes: 2862 
+Cache hits: 6502 
+Cache misses: 3498 
 with-prefetch 
-Memory reads: 3521 
-Memory writes: 2861 
-Cache hits: 8124 
-Cache misses: 1876
+Memory reads: 3522 
+Memory writes: 2862 
+Cache hits: 8125 
+Cache misses: 1875

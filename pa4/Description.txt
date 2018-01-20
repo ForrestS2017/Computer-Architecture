@@ -1,0 +1,48 @@
+Circuit Simulator
+
+This program will cimulate digital logic gates and circuits. Included gates:
+NOT, AND, OR, NAND, NOR, XOR, DECODER, MULTIPLEXER
+
+There is no limit to input and output counts.
+
+Sample input file:
+
+Each file consists of 3+ lines. The first line lists the inputs, the second line lists the outputs, and the following lines list the gates with their inputs and outputs. Gates do not have to be "in order" to function properly. The program dynamically builds the gate in memory and can execute appropriately.
+
+INPUTS: Inputs are specified on a single line following the keyword INPUTVAR. All input variables will be identified with capital letters and digits. An identifier is comprised of at least one character (A-Z) followed by a series of digits (0-9) and/or characters (A-Z).
+		Eg. IN1, IN2, VARA, VARB
+OUTPUTS: Outputs are specified on a the next line following the keyword OUTPUTVAR. Output variables are simply identified by the string "OUT" followed by an integer. Outputs will be listed in consecutive order
+		Eg. OUT1, OUT2, OUT3
+Gates: The inputs and output are specified on each line. First, the name of the gate is listed (from above) in capital letters, followed by the selectors (if applicable), inputs, then outputs. Each gate  will produce an output that can be used as an input to another gate.
+		NOT: This directive is followed by the name of one input, then the name of one output:
+			NOT IN1 OUT1
+		AND: This directive is followed by the name of two inputs, then the name of one output:
+			AND IN1 IN2 OUT1
+		OR: This directive  is followed by the name of two inputs, then the name of one output:
+			OUT IN1 IN2 OUT1
+		NOR: This directive  is followed by the name of two inputs, then the name of one output:
+			NOR IN1 IN2 OUT1
+		XOR: This directive  is followed by the name of two inputs, then the name of one output:
+			XOR IN1 IN2 OUT1
+		DECODER: This directive is followed by the number of inputs, then the names of the inputs, then the names of the outputs (ordered in graycode sequence):
+			DECODER 2 IN1 IN2 OUT1 OUT2 OUT3 OUT4
+		MULTIPLEXER: This directive is followed by the number of inputs, names of the inputs, names of the selectors, then the names the outputs. Inputs can be "1" or "0":
+			MULTIPLEXER 4 0 0 1 0 IN1 IN2 OUT1
+			
+INPUTVAR 3 IN1 IN3 IN4
+OUTPUTVAR 1 OUT1
+MULTIPLEXER 4 1 0 1 0 IN3 IN4 temp1
+MULTIPLEXER 2 temp1 1 IN1 OUT1
+
+Sample output file:
+
+The output file is the result of inputs being passed into the INPUTVAR variables in Grey Code order.
+
+0 0 0 1
+0 0 1 0
+0 1 1 1
+0 1 0 0
+1 1 0 1
+1 1 1 1
+1 0 1 1
+1 0 0 1
